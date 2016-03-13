@@ -1,0 +1,25 @@
+{
+  "name": "caniuse-updates",
+  "version": "0.0.1",
+  "description": "An application that updates you with browser support information when caniuse data changes",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/elifitch/caniuse-updates.git"
+  },
+  "keywords": [
+    "caniuse",
+    "browser",
+    "support",
+    "github"
+  ],
+  "author": "Eli Fitch",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/elifitch/caniuse-updates/issues"
+  },
+  "homepage": "https://github.com/elifitch/caniuse-updates#readme"
+}
