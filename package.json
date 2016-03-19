@@ -21,5 +21,12 @@
   "bugs": {
     "url": "https://github.com/elifitch/caniuse-updates/issues"
   },
-  "homepage": "https://github.com/elifitch/caniuse-updates#readme"
+  "homepage": "https://github.com/elifitch/caniuse-updates#readme",
+  "dependencies": {
+    "bluebird": "^3.3.4",
+    "dotenv": "^2.0.0",
+    "github-watchify": "0.0.1",
+    "mongodb": "^2.1.7",
+    "request-promise": "^2.0.1"
+  }
 }
