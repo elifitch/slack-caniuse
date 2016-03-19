@@ -5,5 +5,7 @@
   const env = require('dotenv').config();
   const dbUrl = process.env.DB_URL;
 
-  dbController.connect(dbUrl).then(dbController.establishBaseline);
+  dbController.connect(dbUrl).then(dbController.establishBaseline).then(function(caniuseJson) {
+    //start github watcher
+  });
 })();

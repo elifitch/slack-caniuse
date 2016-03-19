@@ -29,33 +29,36 @@ module.exports = (function() {
   }
 
   function establishBaseline(db) {
-    //HURRAY!! We are connected. :)
-    const features = db.collection('features');
+    return new Promise(function(resolve, reject) {
+      //HURRAY!! We are connected. :)
+      const features = db.collection('features');
 
-    getFile('https://raw.githubusercontent.com/elifitch/caniuse/master/data.json').then(function(caniuse) {
-      const ciu = JSON.parse(caniuse);
+      getFile('https://raw.githubusercontent.com/elifitch/caniuse/master/data.json').then(function(caniuse) {
+        const ciu = JSON.parse(caniuse);
 
-      const cleanData = encodeDots(ciu.data);
-      const length = _.size(cleanData);
-      let counter = 0;
+        const cleanData = encodeDots(ciu.data);
+        const length = _.size(cleanData);
+        let counter = 0;
 
-      for (var property in cleanData) {
-        if (cleanData.hasOwnProperty(property)) {
-          let feature = {};
-          feature.name = property;
-          feature.data = cleanData[property];
-          
-          // updates feature in db if already exists, if not present, adds feature
-          features.update({name: property}, feature, {
-            upsert: true
-          }).then(function() {
-            counter ++;
-            if (counter === length) {
-              db.close();
-            }
-          });
+        for (var property in cleanData) {
+          if (cleanData.hasOwnProperty(property)) {
+            let feature = {};
+            feature.name = property;
+            feature.data = cleanData[property];
+            
+            // updates feature in db if already exists, if not present, adds feature
+            features.update({name: property}, feature, {
+              upsert: true
+            }).then(function() {
+              counter ++;
+              if (counter === length) {
+                resolve(ciu);
+                db.close();
+              }
+            });
+          }
         }
-      }
+      })
     })
   }
 
