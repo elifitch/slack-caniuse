@@ -8,22 +8,28 @@ module.exports = (function() {
   const mongoClient = mongodb.MongoClient;
 
   return {
-    connect: connect
+    connect: connect,
+    establishBaseline: establishBaseline
   }
 
   //public api
   function connect(dbUrl) {
-    //this does way too much
-    mongoClient.connect(dbUrl, {
-      promiseLibrary: Promise
-    }).then(establishBaseline).catch(function(err) {
-      console.log('Unable to connect to the mongoDB server. Error:', err);
-    });
+    return new Promise(function(resolve, reject) {
+      //this does way too much
+      mongoClient.connect(dbUrl, {
+        promiseLibrary: Promise
+      }).then(function(db){
+        console.log('Connection established to', db.options.url);
+        resolve(db);
+      }).catch(function(err) {
+        reject(error);
+        console.log('Unable to connect to the mongoDB server. Error:', err);
+      });
+    })
   }
 
   function establishBaseline(db) {
     //HURRAY!! We are connected. :)
-    console.log('Connection established to', db.options.url);
     const features = db.collection('features');
 
     getFile('https://raw.githubusercontent.com/elifitch/caniuse/master/data.json').then(function(caniuse) {
