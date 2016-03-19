@@ -4,6 +4,7 @@ const Watchify = require('github-watchify');
 const env = require('dotenv').config();
 const rp = require('request-promise');
 const mongodb = require('mongodb');
+const _ = require('underscore');
 
 const mongoClient = mongodb.MongoClient;
 const dbUrl = process.env.DB_URL;
@@ -20,22 +21,29 @@ mongoClient.connect(dbUrl, function (err, db) {
       const ciu = JSON.parse(caniuse);
 
       const cleanData = encodeDots(ciu.data);
-      console.log(cleanData);
+      const length = _.size(cleanData);
+      let counter = 0;
 
       for (var property in cleanData) {
+          console.log('loop');
           if (cleanData.hasOwnProperty(property)) {
             let feature = {};
             feature.name = property;
-            // feature.data = JSON.stringify(ciu.data[property]);
             feature.data = cleanData[property];
             
             // updates feature in db if already exists, if not present, adds feature
             features.update({name: property}, feature, {
               upsert: true
+            }).then(function() {
+              counter ++;
+              if (counter === length) {
+                db.close();
+              }
             });
 
           }
       }
+      console.log('end');
     })
   }
 });

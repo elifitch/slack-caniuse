@@ -27,6 +27,7 @@
     "dotenv": "^2.0.0",
     "github-watchify": "0.0.1",
     "mongodb": "^2.1.7",
-    "request-promise": "^2.0.1"
+    "request-promise": "^2.0.1",
+    "underscore": "^1.8.3"
   }
 }
