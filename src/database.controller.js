@@ -3,7 +3,7 @@
 module.exports = (function() {
   const rp = require('request-promise');
   const mongodb = require('mongodb');
-  const bluebird = require('bluebird');
+  const Promise = require('bluebird');
   const _ = require('underscore');
   const mongoClient = mongodb.MongoClient;
 
@@ -15,7 +15,7 @@ module.exports = (function() {
   function connect(dbUrl) {
     //this does way too much
     mongoClient.connect(dbUrl, {
-      promiseLibrary: bluebird
+      promiseLibrary: Promise
     }).then(establishBaseline);
   }
 
