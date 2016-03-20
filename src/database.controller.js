@@ -33,7 +33,7 @@ module.exports = (function() {
       //HURRAY!! We are connected. :)
       const features = db.collection('features');
 
-      getFile('https://raw.githubusercontent.com/elifitch/caniuse/master/data.json').then(function(caniuse) {
+      getFile('https://raw.githubusercontent.com/fyrd/caniuse/master/data.json').then(function(caniuse) {
         const ciu = JSON.parse(caniuse);
 
         const cleanData = encodeDots(ciu.data);
@@ -44,6 +44,7 @@ module.exports = (function() {
           if (cleanData.hasOwnProperty(property)) {
             let feature = {};
             feature.name = property;
+            console.log('Adding/updating feature to db: ' + feature.name);
             feature.data = cleanData[property];
             
             // updates feature in db if already exists, if not present, adds feature

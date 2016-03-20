@@ -12,10 +12,13 @@
 
   dbController.connect(dbUrl).then(dbController.getAndStoreCaniuse).then(function(caniuseJson) {
     //start github watcher
-    watcher.watch({
-      targetUser: 'elifitch',
+    watcher.watch({,
+      targetUser: 'fyrd',
       targetRepo: 'caniuse',
+      // targetUser: 'elifitch'
+      // targetRepo: 'test-repo',
       interval: 86400000, //24 hours
+      // interval: 6000, //24 hours
       onPing: function() {
         console.log('github watchify ping');
       },
@@ -24,9 +27,10 @@
   });
 
   function handleCommit(commit, changedFiles) {
+    console.log(changedFiles);
     if (changedFiles.length) {
       changedFiles.forEach(function(file, index, arr){
-        if (file.filename.indexOf('/data.json') === 0) {
+        if (file.filename.indexOf('data.json') === 0) {
           console.log('caniuse data.json changed');
           dbController.connect(dbUrl).then(dbController.getAndStoreCaniuse);
         }
