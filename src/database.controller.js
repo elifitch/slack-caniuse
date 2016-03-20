@@ -9,7 +9,7 @@ module.exports = (function() {
 
   return {
     connect: connect,
-    establishBaseline: establishBaseline
+    getAndStoreCaniuse: getAndStoreCaniuse
   }
 
   //public api
@@ -28,12 +28,12 @@ module.exports = (function() {
     })
   }
 
-  function establishBaseline(db) {
+  function getAndStoreCaniuse(db) {
     return new Promise(function(resolve, reject) {
       //HURRAY!! We are connected. :)
       const features = db.collection('features');
 
-      getFile('https://raw.githubusercontent.com/fyrd/caniuse/master/data.json').then(function(caniuse) {
+      getFile('https://raw.githubusercontent.com/elifitch/caniuse/master/data.json').then(function(caniuse) {
         const ciu = JSON.parse(caniuse);
 
         const cleanData = encodeDots(ciu.data);
