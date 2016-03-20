@@ -33,7 +33,7 @@ module.exports = (function() {
       //HURRAY!! We are connected. :)
       const features = db.collection('features');
 
-      getFile('https://raw.githubusercontent.com/elifitch/caniuse/master/data.json').then(function(caniuse) {
+      getFile('https://raw.githubusercontent.com/fyrd/caniuse/master/data.json').then(function(caniuse) {
         const ciu = JSON.parse(caniuse);
 
         const cleanData = encodeDots(ciu.data);
@@ -52,13 +52,19 @@ module.exports = (function() {
             }).then(function() {
               counter ++;
               if (counter === length) {
-                resolve(ciu);
+                resolve();
                 db.close();
               }
+            }).catch(function(err) {
+              console.log(err);
+              reject(err);
             });
           }
         }
-      })
+      }).catch(function(err) {
+        console.log(err);
+        reject(err);
+      });
     })
   }
 
