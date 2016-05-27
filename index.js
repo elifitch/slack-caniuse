@@ -21,6 +21,7 @@
       interval: 6000, 
       onPing: function() {
         console.log('github watchify ping');
+        handleCommit();
       },
       onCommit: handleCommit
     }) //watcher
@@ -28,7 +29,7 @@
 
   function handleCommit(commit, changedFiles) {
     console.log(changedFiles);
-    if (changedFiles.length) {
+    if (changedFiles) {
       changedFiles.forEach(function(file, index, arr){
         if (file.filename.indexOf('data.json') === 0) {
           console.log('caniuse data.json changed');
