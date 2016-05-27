@@ -12,13 +12,13 @@
 
   dbController.connect(dbUrl).then(dbController.getAndStoreCaniuse).then(function(caniuseJson) {
     //start github watcher
-    watcher.watch({,
+    watcher.watch({
       targetUser: 'fyrd',
       targetRepo: 'caniuse',
       // targetUser: 'elifitch'
       // targetRepo: 'test-repo',
-      interval: 86400000, //24 hours
-      // interval: 6000, //24 hours
+      // interval: 86400000, //24 hours
+      interval: 6000, 
       onPing: function() {
         console.log('github watchify ping');
       },
