@@ -33,10 +33,10 @@ module.exports = (function() {
       //HURRAY!! We are connected. :)
       const features = db.collection('features');
 
-      getFile('https://raw.githubusercontent.com/fyrd/caniuse/master/data.json').then(function(caniuse) {
+      _getFile('https://raw.githubusercontent.com/fyrd/caniuse/master/data.json').then(function(caniuse) {
         const ciu = JSON.parse(caniuse);
 
-        const cleanData = encodeDots(ciu.data);
+        const cleanData = _encodeDots(ciu.data);
         const length = _.size(cleanData);
         let counter = 0;
 
@@ -71,7 +71,7 @@ module.exports = (function() {
 
 
 
-  function getFile(url) {
+  function _getFile(url) {
     var promise = rp.get(url, function(error, response, body) {
       return body;
     });
@@ -79,22 +79,22 @@ module.exports = (function() {
     return promise;
   }
 
-  function encodeDots(obj) {
+  function _encodeDots(obj) {
     var output = {};
     for (var i in obj) {
         if (Object.prototype.toString.apply(obj[i]) === '[object Object]') {
-            output[i.replace(/\./g, 'U+FF0E')] = encodeDots(obj[i]);
+            output[i.replace(/\./g, 'U+FF0E')] = _encodeDots(obj[i]);
         } else {
             output[i.replace(/\./g, 'U+FF0E')] = obj[i];
         }
     }
     return output;
   }
-  function decodeDots(obj) {
+  function _decodeDots(obj) {
     var output = {};
     for (var i in obj) {
         if (Object.prototype.toString.apply(obj[i]) === '[object Object]') {
-            output[i.replace(/U\+FF0E/g, '.')] = decodeDots(obj[i]);
+            output[i.replace(/U\+FF0E/g, '.')] = _decodeDots(obj[i]);
         } else {
             output[i.replace(/U\+FF0E/g, '.')] = obj[i];
         }

@@ -1,6 +1,12 @@
 # caniuse-updates
 This is a simple app which executes a function when caniuse data is updated.  It returns information about any browser support changes for specific features.
 
+## Example env
+```
+DB_URL=mongodb://localhost:27017/caniuse
+GITHUB_TOKEN=l0NgA55alPh4NUm3r1C5tRing
+```
+
 ## TODO
 - [x] Create database
 - [ ] check to see if tables exist, if not, establish baseline
