@@ -6,7 +6,9 @@ module.exports = (function() {
   const dbService = require('../services/database.service.js');
 
   return {
-    makeFeatures
+    makeFeatures,
+    listFeatures,
+    findByName
   }
 
   /* public api */
@@ -42,6 +44,48 @@ module.exports = (function() {
         }
       }
       
+    })
+  }
+
+  function listFeatures() {
+    const db = dbService.getDb();
+    const features = db.collection('features');
+
+    return new Promise((resolve, reject) => {
+      features.find({}).toArray((err, docs) => {
+        if (err) {
+          reject(err);
+        } else {
+          let data = [];
+          docs.forEach((val, index, arr) => {
+            data.push(_decodeDots(val));
+          });
+          resolve(data);
+        }
+      })
+    })
+  }
+
+  function findByName(featureName) {
+    const db = dbService.getDb();
+    const features = db.collection('features');
+
+    return new Promise((resolve, reject) => {
+      // features.find({name: /featureName/}).then((data) => {
+      //   console.log(data);
+      //   resolve(data);
+      // });
+
+      // features.find({description: /featureName/}).toArray((err, docs) => {
+      // features.find({data: {description: /featureName/}}).toArray((err, docs) => {
+      features.find({'data.description': 'Method of running scripts in the background, isolated from the web page'}).toArray((err, docs) => {
+        console.log(docs);
+        let data = [];
+        docs.forEach((val, index, arr) => {
+          data.push(_decodeDots(val));
+        });
+        resolve(data);
+      });
     })
   }
 

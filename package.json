@@ -4,6 +4,7 @@
   "description": "An application that updates you with browser support information when caniuse data changes",
   "main": "app.js",
   "scripts": {
+    "dev": "nodemon app.js",
     "test": "npm test"
   },
   "repository": {
@@ -28,6 +29,8 @@
     "express": "^4.13.4",
     "github-watchify": "0.0.1",
     "mongodb": "^2.1.7",
+    "nodemon": "^1.9.2",
+    "nunjucks": "^2.4.2",
     "request-promise": "^2.0.1",
     "underscore": "^1.8.3"
   }

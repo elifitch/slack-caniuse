@@ -1,9 +1,9 @@
 'use strict';
 (function() {
   const env = require('dotenv').config();
+  const nunjucks = require('nunjucks');
   const express = require('express');
   const app = express();
-  // const router = express.Router();
 
   // const routes = require('./src/router.js');
   const features = require('./src/models/features.model.js');
@@ -11,9 +11,11 @@
   const watcher = require('./src/services/watcher.service.js');
   const getFile = require('./src/lib/request.utils.js').getFile;
 
-  // const routes = require('./src/routes.js');
-  // console.log(routes());
-  // console.log('asdfasdfsdaf');
+  nunjucks.configure('src/views', {
+    autoescape: true,
+    express: app
+  });
+  
   app.use('/', require('./src/routes.js'));
 
   const caniuseUrl = require('./src/config.js').caniuseUrl;

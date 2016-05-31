@@ -22,8 +22,8 @@ module.exports = (function() {
       targetRepo: 'caniuse',
       // targetUser: 'elifitch'
       // targetRepo: 'test-repo',
-      // interval: 86400000, //24 hours
-      interval: 10000, //10 sec
+      interval: 86400000, //24 hours
+      // interval: 10000, //10 sec
       onPing: function() {
         console.log('github watchify ping');
       },
