@@ -2,7 +2,7 @@
   "name": "caniuse-updates",
   "version": "0.0.1",
   "description": "An application that updates you with browser support information when caniuse data changes",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "npm test"
   },

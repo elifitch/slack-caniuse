@@ -1,4 +1,4 @@
-# caniuse-updates
+# caniuse-api
 This is a simple app which executes a function when caniuse data is updated.  It returns information about any browser support changes for specific features.
 
 ## Example env
@@ -18,3 +18,6 @@ GITHUB_TOKEN=l0NgA55alPh4NUm3r1C5tRing
 - [ ] Okay, so a feature json was updated. Replace what was in the cell with the new information, and if it was a note, bug, status change, or a new piece of browser support which was different from the last recorded one, push through a notification.
     - Example: background position x/y, FF 48 N, FF 49 Y. notification goes through saying background position x/y is now supported in firefox 49!
     - And there was much rejoicing.
+
+## Proposed structure
+* Models: make a model that represents features from caniuse. Call it features.  It will accept a lump data.json and store it in the features collection. I'll also have some methods to retreive features by name and shit like that. It WILL NOT go out to github or make external requests of any sort. Put that someplace else, tbd.
