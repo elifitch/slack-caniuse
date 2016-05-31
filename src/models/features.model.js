@@ -76,15 +76,21 @@ module.exports = (function() {
       //   resolve(data);
       // });
 
-      // features.find({description: /featureName/}).toArray((err, docs) => {
-      // features.find({data: {description: /featureName/}}).toArray((err, docs) => {
-      features.find({'data.description': 'Method of running scripts in the background, isolated from the web page'}).toArray((err, docs) => {
-        console.log(docs);
-        let data = [];
-        docs.forEach((val, index, arr) => {
-          data.push(_decodeDots(val));
-        });
-        resolve(data);
+      features.find({'data.title': {$regex: '.*'+ featureName +'.*'}}).toArray((err, docs) => {
+        if (docs) {
+          console.log(docs);
+          let data = [];
+          docs.forEach((val, index, arr) => {
+            data.push(_decodeDots(val));
+          });
+          if (data.length >= 3) {
+            reject('Oops! Your query matched too many results. Can you be more specific?');
+          } else {
+            resolve(data);
+          }
+        } else {
+          reject(err)
+        }
       });
     })
   }

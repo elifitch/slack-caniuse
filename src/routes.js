@@ -27,6 +27,8 @@
       // res.sendFile(__dirname + '/views/index.html');
       features.findByName(req.params.featureName).then((feature) => {
         res.send(feature);
+      }).catch((err) => {
+        res.send(err);
       });
     })
 
