@@ -14,7 +14,6 @@ module.exports = (function() {
   /* public api */
   function makeFeatures(data) {
     return new Promise(function(resolve, reject) {
-      //HURRAY!! We are connected. :)
       const db = dbService.getDb();
       const features = db.collection('features');
       const ciu = JSON.parse(data);
@@ -68,12 +67,6 @@ module.exports = (function() {
 
     return new Promise((resolve, reject) => {
       // $regex: .*someString*. = contains someString
-      /*
-      {$or:[
-        {"field1":{"$in":["foo","bar"]}},
-        {"field2":{"$in":["foo","bar"]}}
-      ]}
-      */
       features.find({$or:[
           {'data.title': {$regex: '.*'+ featureName +'.*'}},
           {'data.description': {$regex: '.*'+ featureName +'.*'}},
