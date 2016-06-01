@@ -53,14 +53,10 @@ module.exports = (function() {
 
     return new Promise((resolve, reject) => {
       features.find({}).toArray((err, docs) => {
-        if (err) {
-          reject(err);
+        if (docs) {
+          resolve(_decodeDots(docs));
         } else {
-          let data = [];
-          docs.forEach((val, index, arr) => {
-            data.push(_decodeDots(val));
-          });
-          resolve(data);
+          reject(err)
         }
       })
     })
@@ -71,25 +67,14 @@ module.exports = (function() {
     const features = db.collection('features');
 
     return new Promise((resolve, reject) => {
-      // features.find({name: /featureName/}).then((data) => {
-      //   console.log(data);
-      //   resolve(data);
-      // });
-
+      // $regex: .*someString*. = contains someString
       features.find({'data.title': {$regex: '.*'+ featureName +'.*'}}).toArray((err, docs) => {
-        if (docs) {
-          console.log(docs);
-          let data = [];
-          docs.forEach((val, index, arr) => {
-            data.push(_decodeDots(val));
-          });
-          if (data.length >= 3) {
-            reject('Oops! Your query matched too many results. Can you be more specific?');
-          } else {
-            resolve(data);
-          }
+        if (docs && docs.length <= 3) {
+          resolve(_decodeDots(docs));
+        } else if (docs && docs.length > 3){
+          reject('Oops! Your query matched too many results. Can you be more specific?');
         } else {
-          reject(err)
+          reject(err);
         }
       });
     })
