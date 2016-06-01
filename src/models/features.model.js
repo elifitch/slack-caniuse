@@ -8,7 +8,7 @@ module.exports = (function() {
   return {
     makeFeatures,
     listFeatures,
-    findByName
+    findFeature
   }
 
   /* public api */
@@ -62,13 +62,23 @@ module.exports = (function() {
     })
   }
 
-  function findByName(featureName) {
+  function findFeature(featureName) {
     const db = dbService.getDb();
     const features = db.collection('features');
 
     return new Promise((resolve, reject) => {
       // $regex: .*someString*. = contains someString
-      features.find({'data.title': {$regex: '.*'+ featureName +'.*'}}).toArray((err, docs) => {
+      /*
+      {$or:[
+        {"field1":{"$in":["foo","bar"]}},
+        {"field2":{"$in":["foo","bar"]}}
+      ]}
+      */
+      features.find({$or:[
+          {'data.title': {$regex: '.*'+ featureName +'.*'}},
+          {'data.description': {$regex: '.*'+ featureName +'.*'}},
+          {'data.keywords': {$regex: '.*'+ featureName +'.*'}}
+        ]}).toArray((err, docs) => {
         if (docs && docs.length <= 3) {
           resolve(_decodeDots(docs));
         } else if (docs && docs.length > 3){

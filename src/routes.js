@@ -15,11 +15,11 @@
       });
     })
 
-    router.get('/features/name/:featureName', (req, res) => {
+    router.get('/features/search/:query', (req, res) => {
       // res.sendFile(__dirname + '/views/index.html');
-      const featureName = decodeURI(req.params.featureName);
+      const query = decodeURI(req.params.query);
 
-      features.findByName(featureName).then((feature) => {
+      features.findFeature(query).then((feature) => {
         console.log(feature instanceof Array);
         res.send(feature);
       }).catch((err) => {
