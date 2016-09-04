@@ -13,35 +13,43 @@ module.exports = (function() {
 
   /* public api */
   function makeFeatures(data) {
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject) => {
       const db = dbService.getDb();
       const features = db.collection('features');
       const ciu = JSON.parse(data);
       const cleanData = _encodeDots(ciu.data);
       const length = _.size(cleanData);
-      let counter = 0;
+      let featureList = [];
 
+      // build iterable
       for (var property in cleanData) {
         if (cleanData.hasOwnProperty(property)) {
           let feature = {};
           feature.name = property;
-          console.log('Adding/updating feature to db: ' + feature.name);
           feature.data = cleanData[property];
-          
+          featureList.push(feature);
+        }
+      }
+
+      Promise.all(
+        featureList.map(feature => {
+          console.log('Adding/updating feature to db: ' + feature.name);
+
           // updates feature in db if already exists, if not present, adds feature
-          features.update({name: property}, feature, {
+          features.update({name: feature.name}, feature, {
             upsert: true
           }).then(function() {
-            counter ++;
-            if (counter === length) {
-              resolve();
-            }
+            resolve();
           }).catch(function(err) {
             console.log(err);
             reject(err);
           });
-        }
-      }
+        })
+      ).then(() => {
+        console.log('ALL DONE');
+      }).catch(err => {
+        console.error(err);
+      })
       
     })
   }
