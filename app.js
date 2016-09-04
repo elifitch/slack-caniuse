@@ -19,11 +19,12 @@
   app.use('/', require('./src/routes.js'));
 
   const caniuseUrl = require('./src/config.js').caniuseUrl;
-  const dbUrl = process.env.DB_URL;
+  const dbUrl = `${process.env.DB_HOST}${process.env.DB_NAME}`;
+  console.log(dbUrl);
   const githubToken = process.env.GITHUB_TOKEN;
   const port = process.env.PORT;
 
-  dbService.connect(process.env.DB_URL).then(() => {
+  dbService.connect(dbUrl).then(() => {
     getFile(caniuseUrl).then((file) => {
       features.makeFeatures(file).then(() => {
         watcher.watchCaniuse(githubToken);
