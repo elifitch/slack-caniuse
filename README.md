@@ -7,6 +7,7 @@ DB_HOST="mongodb://localhost:27017/"
 DB_NAME="caniuse"
 GITHUB_TOKEN="l0NgA55alPh4NUm3r1C5tRing"
 PORT=3000
+CLEAN=false
 ```
 
 ## Endpoints

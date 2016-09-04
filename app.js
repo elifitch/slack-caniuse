@@ -24,15 +24,30 @@
   const githubToken = process.env.GITHUB_TOKEN;
   const port = process.env.PORT;
 
-  dbService.connect(dbUrl).then(() => {
-    getFile(caniuseUrl).then((file) => {
-      features.makeFeatures(file).then(() => {
-        watcher.watchCaniuse(githubToken);
-        app.listen(port, () => {
-          console.log('listening on port ' + port);
-        })
-      })
-    })
-  })
+  if (process.env.CLEAN) {
+    dbService.connect(dbUrl).then(db => {
+      db.dropCollection(features, () => {
+        getFile(caniuseUrl).then((file) => {
+          features.makeFeatures(file).then(() => {
+            watcher.watchCaniuse(githubToken);
+            app.listen(port, () => {
+              console.log('listening on port ' + port);
+            });
+          });
+        });
+      });
+    });
+  } else {
+    dbService.connect(dbUrl).then(() => {
+      getFile(caniuseUrl).then((file) => {
+        features.makeFeatures(file).then(() => {
+          watcher.watchCaniuse(githubToken);
+          app.listen(port, () => {
+            console.log('listening on port ' + port);
+          });
+        });
+      });
+    });
+  }
 
 })();
