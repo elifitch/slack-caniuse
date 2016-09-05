@@ -4,6 +4,7 @@
     const express = require('express');
     const router = express.Router();
     const features = require('./models/features.model.js');
+    const users = require('./models/users.model.js');
     const rp = require('request-promise');
 
     const env = require('dotenv').config();
@@ -38,22 +39,19 @@
         }).then(body => {
           const data = JSON.parse(body);
           if (data.ok) {
-            // const token = data.access_token;
-            // const userId = data.user_id;
-            // const teamName = data.team_name;
-            // const teamId = data.team_id;
             console.log(data);
-            // userService.createUser(data);
+            users.createUser(data).then(() => {
+              console.log('successfully saved user');
+              res.render(__dirname + '/views/success.html', {});
+            }).catch(err => {
+              renderErrorPage(err);
+            })
           }
         }).catch(err => {
-          console.error(err);
+          renderErrorPage(err);
         })
       }
-
-      res.render(__dirname + '/views/redirect.html', {
-        clientId: clientId,
-        slackScope: slackScope
-      });
+      
     });
 
     router.get('/features/', (req, res) => {
@@ -72,6 +70,13 @@
         res.send(err);
       });
     });
+
+    function renderErrorPage(error) {
+      console.error(err);
+      res.render(__dirname + '/views/error.html', {
+        error
+      });
+    }
 
     module.exports = router;
 })()
