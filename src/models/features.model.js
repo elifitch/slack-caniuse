@@ -38,17 +38,16 @@ module.exports = (function() {
           // updates feature in db if already exists, if not present, adds feature
           features.update({name: feature.name}, feature, {
             upsert: true
-          }).then(function() {
+          }).then(() => {
             resolve();
-          }).catch(function(err) {
-            console.log(err);
+          }).catch(err => {
             reject(err);
           });
         })
       ).then(() => {
-        console.log('ALL DONE');
+        resolve();
       }).catch(err => {
-        console.error(err);
+        reject(err);
       })
       
     })
@@ -76,17 +75,17 @@ module.exports = (function() {
     return new Promise((resolve, reject) => {
       // $regex: .*someString*. = contains someString
       features.find({$or:[
-          {'data.title': {$regex: '.*'+ featureName +'.*'}},
-          {'data.description': {$regex: '.*'+ featureName +'.*'}},
-          {'data.keywords': {$regex: '.*'+ featureName +'.*'}}
+          {'data.title': new RegExp(`.*${featureName}.*`, 'gi')},
+          {'data.description': new RegExp(`.*${featureName}.*`, 'gi')},
+          {'data.keywords': new RegExp(`.*${featureName}.*`, 'gi')}
         ]}).toArray((err, docs) => {
-        if (docs && docs.length <= 3) {
-          resolve(_decodeDots(docs));
-        } else if (docs && docs.length > 3){
-          reject('Oops! Your query matched too many results. Can you be more specific?');
-        } else {
-          reject(err);
-        }
+          if (docs && docs.length <= 3) {
+            resolve(_decodeDots(docs));
+          } else if (docs && docs.length > 3){
+            reject('Oops! Your query matched too many results. Can you be more specific?');
+          } else {
+            reject(err);
+          }
       });
     })
   }
@@ -96,11 +95,11 @@ module.exports = (function() {
   function _encodeDots(obj) {
     var output = {};
     for (var i in obj) {
-        if (Object.prototype.toString.apply(obj[i]) === '[object Object]') {
-            output[i.replace(/\./g, 'U+FF0E')] = _encodeDots(obj[i]);
-        } else {
-            output[i.replace(/\./g, 'U+FF0E')] = obj[i];
-        }
+      if (Object.prototype.toString.apply(obj[i]) === '[object Object]') {
+        output[i.replace(/\./g, 'U+FF0E')] = _encodeDots(obj[i]);
+      } else {
+        output[i.replace(/\./g, 'U+FF0E')] = obj[i];
+      }
     }
     return output;
   }
@@ -108,11 +107,11 @@ module.exports = (function() {
   function _decodeDots(obj) {
     var output = {};
     for (var i in obj) {
-        if (Object.prototype.toString.apply(obj[i]) === '[object Object]') {
-            output[i.replace(/U\+FF0E/g, '.')] = _decodeDots(obj[i]);
-        } else {
-            output[i.replace(/U\+FF0E/g, '.')] = obj[i];
-        }
+      if (Object.prototype.toString.apply(obj[i]) === '[object Object]') {
+        output[i.replace(/U\+FF0E/g, '.')] = _decodeDots(obj[i]);
+      } else {
+        output[i.replace(/U\+FF0E/g, '.')] = obj[i];
+      }
     }
     return output;
   }

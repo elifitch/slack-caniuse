@@ -10,7 +10,7 @@
     });
 
     router.get('/features/', (req, res) => {
-      features.listFeatures().then((feats) => {
+      features.listFeatures().then(feats => {
         res.send(feats);
       });
     })
@@ -19,8 +19,7 @@
       // res.sendFile(__dirname + '/views/index.html');
       const query = decodeURI(req.params.query);
 
-      features.findFeature(query).then((feature) => {
-        console.log(feature instanceof Array);
+      features.findFeature(query).then(feature => {
         res.send(feature);
       }).catch((err) => {
         res.send(err);
