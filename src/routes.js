@@ -25,21 +25,29 @@
         console.log('response back with temporary code');
         //initial response with temporary access code
         const temporaryAuthCode = req.query.code;
+        console.log(temporaryAuthCode);
 
-        rp.get({
+        rp.post({
           url: 'https://slack.com/api/oauth.access',
           qs: {
             client_id: clientId,
             client_secret: clientSecret,
             code: temporaryAuthCode,
-            redirect_uri: redirectUri+'foo'
+            redirect_uri: redirectUri
           }
-        }).then((error, response, body) => {
-          console.log('making request for permanent token');
+        }).then(body => {
+          const data = JSON.parse(body);
+          if (data.ok) {
+            // const token = data.access_token;
+            // const userId = data.user_id;
+            // const teamName = data.team_name;
+            // const teamId = data.team_id;
+            console.log(data);
+            // userService.createUser(data);
+          }
+        }).catch(err => {
+          console.error(err);
         })
-      } else if(JSON.parse(res.access_token)) {
-        
-        console.log(`token: ${access_token}`);
       }
 
       res.render(__dirname + '/views/redirect.html', {
@@ -48,16 +56,11 @@
       });
     });
 
-    router.get('/authorizefoo', (req, res) => {
-      console.log('foo route');
-      console.log(res);
-    });
-
     router.get('/features/', (req, res) => {
       features.listFeatures().then(feats => {
         res.send(feats);
       });
-    })
+    });
 
     router.get('/features/search/:query', (req, res) => {
       // res.sendFile(__dirname + '/views/index.html');
@@ -68,7 +71,7 @@
       }).catch(err => {
         res.send(err);
       });
-    })
+    });
 
     module.exports = router;
 })()
