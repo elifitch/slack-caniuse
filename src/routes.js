@@ -12,6 +12,7 @@
     const clientId = process.env.SLACK_CLIENT_ID;
     const clientSecret = process.env.SLACK_CLIENT_SECRET;
     const redirectUri = process.env.SLACK_REDIRECT_URI;
+    const verifier = process.env.SLACK_VERIFICATION_TOKEN;
 
     router.get('/', (req, res) => {
       res.render(__dirname + '/views/index.html', {
@@ -72,7 +73,24 @@
     });
 
     router.post('/test', (req, res) => {
-      // console.log(JSON.parse(req.body));
+      // { token: 'hiK63eNeuWxFPgPHowiaqpS5',
+      //   team_id: 'T1D4AD92P',
+      //   team_domain: 'elislackdev',
+      //   channel_id: 'C1D4ADC9Z',
+      //   channel_name: 'general',
+      //   user_id: 'U1D5EJ5AQ',
+      //   user_name: 'eli',
+      //   command: '/caniuse',
+      //   text: 'fooooooobarrrrrr',
+      //   response_url: 'https://hooks.slack.com/commands/T1D4AD92P/76496487429/f3PMknFsjReV0R4No7YKhCQW' }
+      if (verifier === req.body.token) {
+        // rp.get(req.body.response_url)
+        res.setHeader('Content-Type', 'application/json');
+        res.send({
+            "text": "lets get schwifty"
+        });
+      }
+      
       console.log(req.body);
     })
 
