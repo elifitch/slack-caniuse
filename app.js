@@ -2,6 +2,7 @@
 (function() {
   const env = require('dotenv').config();
   const nunjucks = require('nunjucks');
+  const bodyParser = require('body-parser');
   const express = require('express');
   const app = express();
 
@@ -16,6 +17,7 @@
     express: app
   });
   
+  app.use(bodyParser.urlencoded({ extended: false }));
   app.use('/', require('./src/routes.js'));
 
   const caniuseUrl = require('./src/config.js').caniuseUrl;

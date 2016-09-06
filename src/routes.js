@@ -51,7 +51,7 @@
           renderErrorPage(err);
         })
       }
-      
+
     });
 
     router.get('/features/', (req, res) => {
@@ -70,6 +70,11 @@
         res.send(err);
       });
     });
+
+    router.post('/test', (req, res) => {
+      // console.log(JSON.parse(req.body));
+      console.log(req.body);
+    })
 
     function renderErrorPage(error) {
       console.error(err);
