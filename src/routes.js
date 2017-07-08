@@ -70,7 +70,7 @@
 		});
 	});
 
-	router.post('/test', (req, res) => {
+	router.post('/caniuse', (req, res) => {
 		// { token: 'hiK63eNeuWxFPgPHowiaqpS5',
 		//   team_id: 'T1D4AD92P',
 		//   team_domain: 'elislackdev',
@@ -81,12 +81,35 @@
 		//   command: '/caniuse',
 		//   text: 'fooooooobarrrrrr',
 		//   response_url: 'https://hooks.slack.com/commands/T1D4AD92P/76496487429/f3PMknFsjReV0R4No7YKhCQW' }
+
+		// if (verifier === req.body.token) {
+		// 	console.log(req.body)
+		// 	res.setHeader('Content-Type', 'application/json');
+		// 	res.send({
+		// 			"text": "lets get schwifty"
+		// 	});
+		// }
+
+
 		if (verifier === req.body.token) {
-			// rp.get(req.body.response_url)
-			res.setHeader('Content-Type', 'application/json');
-			res.send({
-					"text": "lets get schwifty"
+			console.log(req.body.text);
+			features.findFeature(req.body.text).then(feature => {
+				res.send({
+					// "text": feature
+					"text": JSON.stringify(feature)
+				});
+			}).catch(err => {
+				res.send(err);
 			});
+
+			// features.listFeatures().then(feats => {
+			// 	res.setHeader('Content-Type', 'application/json');
+			// 	console.log(feats);
+			// 	console.log('SENDENZIE');
+			// 	res.send({
+			// 			"text": feats
+			// 	});
+			// });
 		}
 
 		console.log(req.body);
