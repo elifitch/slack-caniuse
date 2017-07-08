@@ -21,7 +21,7 @@ module.exports = (function() {
       mongoClient.connect(dbUrl, {
         promiseLibrary: Promise
       }).then(function(db){
-        console.log('Connection established to', db.options.url);
+        console.log(`Connection established to ${process.env.DB_HOST}${process.env.DB_NAME}`);
         state.db = db;
         resolve(db);
       }).catch(function(err) {

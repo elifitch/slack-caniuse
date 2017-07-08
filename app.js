@@ -2,6 +2,7 @@
 (function() {
   const env = require('dotenv').config();
   const nunjucks = require('nunjucks');
+  const bodyParser = require('body-parser');
   const express = require('express');
   const app = express();
 
@@ -16,6 +17,7 @@
     express: app
   });
   
+  app.use(bodyParser.urlencoded({ extended: false }));
   app.use('/', require('./src/routes.js'));
 
   const caniuseUrl = require('./src/config.js').caniuseUrl;
@@ -24,27 +26,45 @@
   const githubToken = process.env.GITHUB_TOKEN;
   const port = process.env.PORT;
 
+  // if (process.env.CLEAN) {
+  //   dbService.connect(dbUrl).then(db => {
+  //     db.dropCollection(features, () => {
+  //       getFile(caniuseUrl).then((file) => {
+  //         features.makeFeatures(file).then(() => {
+  //           watcher.watchCaniuse(githubToken);
+  //           app.listen(port, () => {
+  //             console.log('listening on port ' + port);
+  //           });
+  //         });
+  //       });
+  //     });
+  //   });
+  // } else {
+  //   dbService.connect(dbUrl).then(() => {
+  //     getFile(caniuseUrl).then((file) => {
+  //       features.makeFeatures(file).then(() => {
+  //         watcher.watchCaniuse(githubToken);
+  //         app.listen(port, () => {
+  //           console.log('listening on port ' + port);
+  //         });
+  //       });
+  //     });
+  //   });
+  // }
   if (process.env.CLEAN) {
     dbService.connect(dbUrl).then(db => {
-      db.dropCollection(features, () => {
-        getFile(caniuseUrl).then((file) => {
-          features.makeFeatures(file).then(() => {
-            watcher.watchCaniuse(githubToken);
-            app.listen(port, () => {
-              console.log('listening on port ' + port);
-            });
-          });
-        });
-      });
+      db.dropCollection(features, _startApp);
     });
   } else {
-    dbService.connect(dbUrl).then(() => {
-      getFile(caniuseUrl).then((file) => {
-        features.makeFeatures(file).then(() => {
-          watcher.watchCaniuse(githubToken);
-          app.listen(port, () => {
-            console.log('listening on port ' + port);
-          });
+    dbService.connect(dbUrl).then(_startApp);
+  }
+
+  function _startApp() {
+    getFile(caniuseUrl).then((file) => {
+      features.makeFeatures(file).then(() => {
+        watcher.watchCaniuse(githubToken);
+        app.listen(port, () => {
+          console.log('listening on port ' + port);
         });
       });
     });
