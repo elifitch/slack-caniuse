@@ -14,6 +14,8 @@
 	const redirectUri = process.env.SLACK_REDIRECT_URI;
 	const verifier = process.env.SLACK_VERIFICATION_TOKEN;
 
+	const messageService = require('./services/message.service');
+
 	router.get('/', (req, res) => {
 		res.render(`${__dirname}/views/index.html`, {
 			clientId: clientId,
@@ -62,7 +64,6 @@
 	});
 
 	router.get('/features/search/:query', (req, res) => {
-		// res.sendFile(__dirname + '/views/index.html');
 		const query = decodeURI(req.params.query);
 
 		features.findFeature(query).then(feature => {
@@ -86,10 +87,17 @@
 
 		if (verifier === req.body.token) {
 			console.log(req.body.text);
-			features.findFeature(req.body.text).then(feature => {
-				res.send({
-					"text": JSON.stringify(feature)
-				});
+			features.findFeature(req.body.text).then(features => {
+				if (features.length && features.length === 1) {
+					// 1 feature returned
+					res.send(messageService.mutliFeature(features));
+				} else if (features.length && features.length > 1) {
+					// more than 1 feature returned
+					res.send(messageService.mutliFeature(features));
+				} else {
+					// No features returned
+				}
+
 			}).catch(err => {
 				res.send(err);
 			});

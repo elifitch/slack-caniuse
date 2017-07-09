@@ -78,12 +78,13 @@ module.exports = (function() {
       features.find({$or:[
           {'data.title': new RegExp(`.*${featureName}.*`, 'gi')},
           // For now, not searching description, too loose.
-          // {'data.description': new RegExp(`.*${featureName}.*`, 'gi')},
+          {'data.description': new RegExp(`.*${featureName}.*`, 'gi')},
           {'data.keywords': new RegExp(`.*${featureName}.*`, 'gi')}
         ]}).toArray((err, docs) => {
           if (docs && docs.length <= 3) {
-            resolve(_decodeDots(docs));
-          } else if (docs && docs.length > 3){
+          	const decoded = docs.map(doc => _decodeDots(doc));
+            resolve(decoded);
+          } else if (docs && docs.length > 3) {
             reject('Oops! Your query matched too many results. Can you be more specific?');
           } else {
             reject(err);
