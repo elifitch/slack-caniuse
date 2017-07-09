@@ -38,14 +38,16 @@
 					redirect_uri: redirectUri
 				}
 			}).then(body => {
-				const data = JSON.parse(body);
-				if (data.ok) {
-					console.log(data);
-					return users.createUser(data)
+				const userData = JSON.parse(body);
+				if (userData.ok) {
+					return users.createUser(userData);
+				} else {
+					// this will be caught below
+					throw('data back from slack was not ok');
 				}
 			}).then(() => {
 				console.log('successfully saved user');
-				res.render(__dirname + '/views/success.html', {});
+				res.render(`${__dirname}/views/success.html`, {});
 			}).catch(err => {
 				renderErrorPage(err);
 			});
@@ -100,7 +102,7 @@
 
 	function renderErrorPage(error) {
 		console.error(err);
-		res.render(__dirname + '/views/error.html', {
+		res.render(`${__dirname}/views/error.html`, {
 			error
 		});
 	}

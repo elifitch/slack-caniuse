@@ -33,7 +33,7 @@ module.exports = (function() {
 
       Promise.all(
         featureList.map(feature => {
-          console.log('Adding/updating feature to db: ' + feature.name);
+          console.log(`Upserting feature to db: ${feature.name}`);
 
           // updates feature in db if already exists, if not present, adds feature
           features.update({name: feature.name}, feature, {
@@ -49,7 +49,7 @@ module.exports = (function() {
       }).catch(err => {
         reject(err);
       })
-      
+
     })
   }
 
@@ -116,5 +116,4 @@ module.exports = (function() {
     return output;
   }
 
-  
 })()
