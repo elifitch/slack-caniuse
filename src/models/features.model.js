@@ -24,9 +24,10 @@ module.exports = (function() {
       // build iterable
       for (var property in cleanData) {
         if (cleanData.hasOwnProperty(property)) {
-          let feature = {};
-          feature.name = property;
-          feature.data = cleanData[property];
+          const feature = {
+          	name: property,
+          	data: cleanData[property]
+          };
           featureList.push(feature);
         }
       }
@@ -76,7 +77,8 @@ module.exports = (function() {
       // $regex: .*someString*. = contains someString
       features.find({$or:[
           {'data.title': new RegExp(`.*${featureName}.*`, 'gi')},
-          {'data.description': new RegExp(`.*${featureName}.*`, 'gi')},
+          // For now, not searching description, too loose.
+          // {'data.description': new RegExp(`.*${featureName}.*`, 'gi')},
           {'data.keywords': new RegExp(`.*${featureName}.*`, 'gi')}
         ]}).toArray((err, docs) => {
           if (docs && docs.length <= 3) {
