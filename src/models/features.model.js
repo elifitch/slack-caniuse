@@ -8,7 +8,8 @@ module.exports = (function() {
   return {
     makeFeatures,
     listFeatures,
-    findFeature
+    findFeature,
+    getFeatureByName
   }
 
   /* public api */
@@ -93,6 +94,21 @@ module.exports = (function() {
     })
   }
 
+  function getFeatureByName(featureName) {
+  	const db = dbService.getDb();
+    const features = db.collection('features');
+
+    return new Promise((resolve, reject) => {
+    	features.findOne({
+    		name: featureName
+    	}, (err, doc) => {
+    		if (err) {
+    			reject(err);
+    		}
+    		resolve(doc);
+    	});
+    });
+  }
 
   /* private */
   function _encodeDots(obj) {

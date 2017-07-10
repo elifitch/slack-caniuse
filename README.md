@@ -14,6 +14,9 @@ PORT=3000
 CLEAN=false
 ```
 
+## Local dev
+Need to expose the local port with Ngrok, and edit the URLs in the slack app dashboard to match the Ngrok url.
+
 ## Commands
 `/caniuse 'some feature'`: Gives you browser support information for that feature
 
@@ -21,7 +24,9 @@ CLEAN=false
 - [x] Auth & integration with Add To Slack button
 - [x] Import caniuse data
 - [x] Watch caniuse data for changes
-- [ ] Query with slash command
+- [x] Basic query with slash command
+- [ ] Andvanced/styled query with slash command
 - [ ] Passive reminders when features change
+- [ ] Better error handling
 - [ ] Tests
 

@@ -6,6 +6,7 @@
 	const features = require('./models/features.model.js');
 	const users = require('./models/users.model.js');
 	const rp = require('request-promise');
+	const safeParse = require("safe-json-parse/callback");
 
 	const env = require('dotenv').config();
 	const slackScope = require('./config.js').slackScope;
@@ -86,7 +87,6 @@
 		//   response_url: 'https://hooks.slack.com/commands/T1D4AD92P/76496487429/f3PMknFsjReV0R4No7YKhCQW' }
 
 		if (verifier === req.body.token) {
-			console.log(req.body.text);
 			features.findFeature(req.body.text).then(features => {
 				if (features.length && features.length === 1) {
 					// 1 feature returned
@@ -104,9 +104,27 @@
 		} else {
 			res.status(400).send('Request token did not match slack verification token.')
 		}
+	});
 
-		console.log(req.body);
-	})
+	router.post('/interactive-message', (req, res) => {
+		let parsedPayload;
+		safeParse(req.body.payload, (err, json) => {
+			if (err) {
+				res.status(400).send('Invalid payload')
+				return;
+			}
+			parsedPayload = json;
+		});
+
+		if (verifier === parsedPayload.token) {
+			features.getFeatureByName(parsedPayload.actions[0].value).then(feature => {
+				res.send(messageService.singleFeature(feature))
+			});
+		} else {
+			res.status(400).send('Request token did not match slack verification token.');
+			return;
+		}
+	});
 
 	function renderErrorPage(error) {
 		console.error(err);

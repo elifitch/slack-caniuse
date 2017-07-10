@@ -35,11 +35,11 @@
 
   function _startApp() {
     getFile(caniuseUrl).then((file) => {
-      features.makeFeatures(file).then(() => {
-        watcher.watchCaniuse(githubToken);
-        app.listen(port, () => {
-          console.log('listening on port ' + port);
-        });
+      return features.makeFeatures(file);
+    }).then(() => {
+      watcher.watchCaniuse(githubToken);
+      app.listen(port, () => {
+        console.log('listening on port ' + port);
       });
     });
   }

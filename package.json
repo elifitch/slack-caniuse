@@ -33,6 +33,7 @@
     "nodemon": "^1.9.2",
     "nunjucks": "^2.4.2",
     "request-promise": "^2.0.1",
+    "safe-json-parse": "^4.0.0",
     "underscore": "^1.8.3"
   }
 }
