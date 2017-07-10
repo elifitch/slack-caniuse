@@ -8,9 +8,11 @@
 
   const routes = require('./src/routes.js');
   const features = require('./src/models/features.model.js');
+  const browsers = require('./src/models/browsers.model.js');
   const dbService = require('./src/services/database.service.js');
   const watcher = require('./src/services/watcher.service.js');
   const getFile = require('./src/lib/request.utils.js').getFile;
+  const dbUtils = require('./src/lib/database.utils.js');
 
   nunjucks.configure('src/views', {
     autoescape: true,
@@ -27,7 +29,9 @@
 
   if (process.env.CLEAN) {
     dbService.connect(dbUrl).then(db => {
-      db.dropCollection(features, _startApp);
+      db.dropCollection('features', () => {
+      	db.dropCollection('browsers', _startApp)
+      });
     });
   } else {
     dbService.connect(dbUrl).then(_startApp);
@@ -35,7 +39,12 @@
 
   function _startApp() {
     getFile(caniuseUrl).then((file) => {
-      return features.makeFeatures(file);
+    	const ciu = JSON.parse(file);
+			const cleanData = dbUtils.encodeDots(ciu);
+      return Promise.all([
+      	browsers.makeBrowsers(cleanData),
+      	features.makeFeatures(cleanData.data)
+      ])
     }).then(() => {
       watcher.watchCaniuse(githubToken);
       app.listen(port, () => {
