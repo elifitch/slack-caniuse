@@ -16,10 +16,13 @@ module.exports = (function() {
 			const browsers = db.collection('browsers');
 
 			const browserList = Object.keys(data.agents).map(browserName => {
+				const browserData = data.agents[browserName]
 				return {
 					name: browserName,
 					data: {
-						versions: data.agents[browserName].versions
+						versions: browserData.versions,
+						currentVersion: browserData.versions[Object.keys(data.eras).indexOf('e0')],
+						lastVersion: browserData.versions[Object.keys(data.eras).indexOf('e-1')]
 					}
 				}
 			});
