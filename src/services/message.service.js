@@ -28,7 +28,7 @@ module.exports = (function() {
 						name: feature.name,
 						text: 'This one!',
 						type: 'button',
-						value: feature.name
+						value: feature._id
 					}]
 				}
 			})

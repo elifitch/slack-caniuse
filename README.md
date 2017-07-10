@@ -28,5 +28,6 @@ Need to expose the local port with Ngrok, and edit the URLs in the slack app das
 - [ ] Andvanced/styled query with slash command
 - [ ] Passive reminders when features change
 - [ ] Better error handling
+- [ ] Investigate performance around encode/decode dots in feature model
 - [ ] Tests
 

@@ -2,6 +2,7 @@
 
 module.exports = (function() {
   const mongodb = require('mongodb');
+  const ObjectId = require('mongodb').ObjectId;
   const Promise = require('bluebird');
   const mongoClient = mongodb.MongoClient;
 
@@ -11,7 +12,8 @@ module.exports = (function() {
 
   return {
     connect,
-    getDb
+    getDb,
+    ObjectId
   }
 
   //public api
@@ -34,5 +36,5 @@ module.exports = (function() {
   function getDb() {
     return state.db;
   }
-  
+
 })()

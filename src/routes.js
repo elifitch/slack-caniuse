@@ -117,7 +117,7 @@
 		});
 
 		if (verifier === parsedPayload.token) {
-			features.getFeatureByName(parsedPayload.actions[0].value).then(feature => {
+			features.getFeatureById(parsedPayload.actions[0].value).then(feature => {
 				res.send(messageService.singleFeature(feature))
 			});
 		} else {
