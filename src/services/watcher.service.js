@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = (function() {
+	const debug = require('debug')('app:watcher');
   const Watchify = require('github-watchify');
   const features = require('../models/features.model.js');
   const env = require('dotenv').config();
@@ -10,7 +11,7 @@ module.exports = (function() {
   return {
     watchCaniuse
   }
-  
+
   function watchCaniuse(token) {
     const watcher = new Watchify({
       token: token,
@@ -25,23 +26,23 @@ module.exports = (function() {
       interval: 86400000, //24 hours
       // interval: 10000, //10 sec
       onPing: function() {
-        console.log('github watchify ping');
+        debug('github watchify ping');
       },
       onCommit: _handleCommit
     });
   }
 
   function _handleCommit(commit, changedFiles) {
-    console.log(changedFiles);
+    debug(changedFiles);
     if (changedFiles) {
       changedFiles.forEach(function(file, index, arr){
         if (file.filename.indexOf('data.json') === 0) {
 
-          console.log('caniuse data.json changed');
+          debug('caniuse data.json changed');
           getFile(caniuseUrl).then((file) => {
             features.makeFeatures(file);
           }).catch(function(err) {
-            console.log(err);
+            debug(err);
             reject(err);
           });
 

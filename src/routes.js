@@ -1,6 +1,7 @@
 'use strict';
 
 (function() {
+	const debug = require('debug')('app:routes');
 	const express = require('express');
 	const router = express.Router();
 	const features = require('./models/features.model.js');
@@ -27,10 +28,9 @@
 
 	router.get('/authorize', (req, res) => {
 		if (req.query.code) {
-			console.log('response back with temporary code');
+			debug(`response back with temporary code: ${temporaryAuthCode}`);
 			//initial response with temporary access code
 			const temporaryAuthCode = req.query.code;
-			console.log(temporaryAuthCode);
 
 			rp.post({
 				url: 'https://slack.com/api/oauth.access',
@@ -49,7 +49,7 @@
 					throw('data back from slack was not ok');
 				}
 			}).then(() => {
-				console.log('successfully saved user');
+				debug('successfully saved user');
 				res.render(`${__dirname}/views/success.html`, {});
 			}).catch(err => {
 				renderErrorPage(err);
@@ -127,7 +127,7 @@
 	});
 
 	function renderErrorPage(error) {
-		console.error(err);
+		debug(err);
 		res.render(`${__dirname}/views/error.html`, {
 			error
 		});

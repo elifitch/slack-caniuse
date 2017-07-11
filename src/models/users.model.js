@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = (function() {
+	const debug = require('debug')('app:users-model');
 	const Promise = require('bluebird');
 	const dbService = require('../services/database.service.js');
 
@@ -29,7 +30,7 @@ module.exports = (function() {
 						reject(err);
 					});
 				} else {
-					console.log(`User already exists: ${dataToSave}`);
+					debug(`User already exists: ${dataToSave}`);
 					resolve(dataToSave);
 				}
 			})

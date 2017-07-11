@@ -1,6 +1,7 @@
 'use strict';
 (function() {
-  const env = require('dotenv').config();
+	const env = require('dotenv').config();
+	const debug = require('debug')('app:app');
   const nunjucks = require('nunjucks');
   const bodyParser = require('body-parser');
   const express = require('express');
@@ -18,7 +19,7 @@
     autoescape: true,
     express: app
   });
-
+  debug('fooooooo')
   app.use(bodyParser.urlencoded({ extended: false }));
   app.use('/', routes);
 

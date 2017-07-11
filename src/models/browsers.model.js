@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = (function() {
+	const debug = require('debug')('app:browsers-model');
 	const Promise = require('bluebird');
 	const dbService = require('../services/database.service.js');
 	const dbUtils = require('../lib/database.utils.js');
@@ -30,7 +31,7 @@ module.exports = (function() {
 
 		return Promise.all(
 			browserList.map(browser => {
-				console.log(`Upserting browser to db: ${browser.name}`);
+				debug(`Upserting browser to db: ${browser.name}`);
 				return browsers.update({name: browser.name}, browser, {
 					upsert: true
 				})

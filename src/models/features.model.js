@@ -1,6 +1,7 @@
 'use strict';
 
 module.exports = (function() {
+	const debug = require('debug')('app:features-model');
 	const Promise = require('bluebird');
 	const dbService = require('../services/database.service.js');
 	const dbUtils = require('../lib/database.utils.js');
@@ -27,7 +28,7 @@ module.exports = (function() {
 
 		return Promise.all(
 			featureList.map(feature => {
-				// console.log(`Upserting feature to db: ${feature.name}`);
+				// debug(`Upserting feature to db: ${feature.name}`);
 				return features.update({name: feature.name}, feature, {
 					upsert: true
 				})
