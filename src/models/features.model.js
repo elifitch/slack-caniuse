@@ -15,26 +15,24 @@ module.exports = (function() {
 
 	/* public api */
 	function makeFeatures(data) {
-		return new Promise((resolve, reject) => {
-			const db = dbService.getDb();
-			const features = db.collection('features');
+		const db = dbService.getDb();
+		const features = db.collection('features');
 
-			const featureList = Object.keys(data).map(featureName => {
-				return {
-					name: featureName,
-					data: data[featureName]
-				}
-			});
+		const featureList = Object.keys(data).map(featureName => {
+			return {
+				name: featureName,
+				data: data[featureName]
+			}
+		});
 
-			return Promise.all(
-				featureList.map(feature => {
-					console.log(`Upserting feature to db: ${feature.name}`);
-					return features.update({name: feature.name}, feature, {
-						upsert: true
-					})
+		return Promise.all(
+			featureList.map(feature => {
+				// console.log(`Upserting feature to db: ${feature.name}`);
+				return features.update({name: feature.name}, feature, {
+					upsert: true
 				})
-			);
-		})
+			})
+		);
 	}
 
 	function listFeatures() {
