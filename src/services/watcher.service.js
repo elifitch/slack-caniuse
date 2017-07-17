@@ -19,12 +19,13 @@ module.exports = (function() {
     });
 
     watcher.watch({
-      targetUser: 'fyrd',
+      // targetUser: 'fyrd',
+      // targetRepo: 'caniuse',
+      targetUser: 'elifitch',
       targetRepo: 'caniuse',
-      // targetUser: 'elifitch'
-      // targetRepo: 'test-repo',
       interval: 86400000, //24 hours
       // interval: 10000, //10 sec
+      // interval: 1000, //1 sec
       onPing: function() {
         debug('github watchify ping');
       },
@@ -40,8 +41,17 @@ module.exports = (function() {
 
           debug('caniuse data.json changed');
           getFile(caniuseUrl).then((file) => {
-            features.makeFeatures(file);
-          }).catch(function(err) {
+          	const ciu = JSON.parse(file);
+						const cleanData = dbUtils.encodeDots(ciu);
+			      return Promise.all([
+			      	browsers.makeBrowsers(cleanData),
+			      	features.makeFeatures(cleanData.data)
+			      ])
+          })
+          .then(() => {
+
+          })
+          .catch(function(err) {
             debug(err);
             reject(err);
           });
