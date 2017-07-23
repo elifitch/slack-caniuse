@@ -11,7 +11,8 @@ module.exports = (function() {
 		listFeatures,
 		findFeature,
 		getFeatureByName,
-		getFeatureById
+		getFeatureById,
+		getUpdatedFeatures
 	}
 
 	/* public api */
@@ -43,7 +44,8 @@ module.exports = (function() {
 		return new Promise((resolve, reject) => {
 			features.find({}).toArray((err, docs) => {
 				if (docs) {
-					resolve(dbUtils.decodeDots(docs));
+					const decoded = docs.map(doc => dbUtils.decodeDots(doc));
+					resolve(decoded);
 				} else {
 					reject(err)
 				}
@@ -104,6 +106,38 @@ module.exports = (function() {
 				}
 				resolve(dbUtils.decodeDots(doc));
 			});
+		});
+	}
+
+	function getUpdatedFeatures(browserData) {
+		return listFeatures().then(features => {
+			const browserNames = Object.keys(browserData);
+			const updatedFeatures = features.reduce((updates, feature) => {
+				let returnData = {
+					feature: feature.name,
+					data: []
+				};
+				browserNames.forEach(browserName => {
+					const {currentVersion, lastVersion} = browserData[browserName];
+					if ((currentVersion && lastVersion)) {
+						const featureCurrent = feature.data.stats[browserName][currentVersion];
+						const featureLast = feature.data.stats[browserName][lastVersion];
+						if (featureCurrent !== featureLast) {
+							returnData.data.push({
+								browser: browserName,
+								currentVersion: featureCurrent,
+								lastVersion: featureLast
+							});
+						}
+					}
+				});
+				if (returnData.data.length > 1) {
+					updates.push(returnData);
+				}
+				return updates;
+			}, []);
+
+			return updatedFeatures;
 		});
 	}
 

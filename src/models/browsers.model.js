@@ -65,16 +65,12 @@ module.exports = (function() {
 				if (err) {
 					reject(err);
 				} else {
-					const results = docs.reduce((obj, doc) => {
-						obj[doc.name] = {
-							_id: doc._id,
-							name: doc.name,
-							data: {
-								currentVersion: doc.currentVersion,
-								lastVersion: doc.lastVersion
-							}
+					const results = docs.reduce((returnedData, browser) => {
+						returnedData[browser.name] = {
+							currentVersion: browser.data.currentVersion,
+							lastVersion: browser.data.lastVersion
 						};
-						return obj;
+						return returnedData;
 					}, {});
 					resolve(results);
 				}
