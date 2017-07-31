@@ -5,6 +5,8 @@
 	const nunjucks = require('nunjucks');
 	const bodyParser = require('body-parser');
 	const express = require('express');
+	// const createSlackEventAdapter = require('@slack/events-api').createSlackEventAdapter;
+	// const slackEvents = createSlackEventAdapter(process.env.SLACK_VERIFICATION_TOKEN);
 	const app = express();
 
 	const routes = require('./src/routes.js');
@@ -15,18 +17,27 @@
 	const getFile = require('./src/lib/request.utils.js').getFile;
 	const dbUtils = require('./src/lib/database.utils.js');
 
+	const caniuseUrl = require('./src/config.js').caniuseUrl;
+	const dbUrl = `${process.env.DB_HOST}${process.env.DB_NAME}`;
+	const githubToken = process.env.GITHUB_TOKEN;
+	const port = process.env.PORT;
+	const slackVerificationToken = process.env.SLACK_VERIFICATION_TOKEN;
+
+	const slackService = require('./src/services/slack.service.js');
+	const slackEvents = slackService.slackEventAdapter(slackVerificationToken);
+
 	nunjucks.configure('src/views', {
 		autoescape: true,
 		express: app
 	});
 
-	app.use(bodyParser.urlencoded({ extended: false }));
+	app.use( bodyParser.urlencoded({ extended: false }));
+	// Mount slack event handler on a route
+	console.log(slackService.slackEventAdapter(slackVerificationToken))
+	app.use('/slack/events', slackEvents.expressMiddleware());
 	app.use('/', routes);
 
-	const caniuseUrl = require('./src/config.js').caniuseUrl;
-	const dbUrl = `${process.env.DB_HOST}${process.env.DB_NAME}`;
-	const githubToken = process.env.GITHUB_TOKEN;
-	const port = process.env.PORT;
+	slackService.init(slackEvents);
 
 	if (process.env.CLEAN) {
 		dbService.connect(dbUrl).then(db => {

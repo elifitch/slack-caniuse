@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/elifitch/caniuse-updates#readme",
   "dependencies": {
+    "@slack/events-api": "^1.0.1",
     "bluebird": "^3.3.4",
     "body-parser": "^1.15.2",
     "debug": "^2.6.8",
@@ -35,7 +36,6 @@
     "nunjucks": "^2.4.2",
     "request-promise": "^2.0.1",
     "safe-json-parse": "^4.0.0",
-    "socket.io": "^2.0.3",
     "underscore": "^1.8.3"
   }
 }
