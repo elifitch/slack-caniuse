@@ -31,9 +31,9 @@
 		express: app
 	});
 
-	app.use( bodyParser.urlencoded({ extended: false }));
+	// app.use( bodyParser.urlencoded({ extended: false }));
+	app.use( bodyParser.json());
 	// Mount slack event handler on a route
-	console.log(slackService.slackEventAdapter(slackVerificationToken))
 	app.use('/slack/events', slackEvents.expressMiddleware());
 	app.use('/', routes);
 
