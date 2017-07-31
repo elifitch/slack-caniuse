@@ -11,29 +11,22 @@ module.exports = (function() {
 	}
 
 	function createUser(userData) {
-		return new Promise((resolve, reject) => {
-			const dataToSave = {
-				access_token: userData.access_token,
-				scope: userData.scope,
-				user_id: userData.user_id,
-				team_name: userData.team_name,
-				team_id: userData.team_id
-			};
+		const dataToSave = {
+			access_token: userData.access_token,
+			scope: userData.scope,
+			user_id: userData.user_id,
+			team_name: userData.team_name,
+			team_id: userData.team_id,
+			incoming_webhook: userData.incoming_webhook,
+			bot: userData.bot
+		};
 
-			const db = dbService.getDb();
-			const users = db.collection('users');
-			getUser(userData.user_id).then(usersWithId => {
-				if (usersWithId.length === 0) {
-					users.save(dataToSave).then(() => {
-						resolve(dataToSave);
-					}).catch(err => {
-						reject(err);
-					});
-				} else {
-					debug(`User already exists: ${dataToSave}`);
-					resolve(dataToSave);
-				}
-			})
+		const db = dbService.getDb();
+		const users = db.collection('users');
+
+		// upsert users based on user id. Should be team???
+		return users.update({user_id: dataToSave.user_id}, dataToSave, {
+			upsert: true
 		});
 	}
 

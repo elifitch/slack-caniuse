@@ -28,9 +28,9 @@
 
 	router.get('/authorize', (req, res) => {
 		if (req.query.code) {
-			debug(`response back with temporary code: ${temporaryAuthCode}`);
 			//initial response with temporary access code
 			const temporaryAuthCode = req.query.code;
+			debug(`response back with temporary code: ${temporaryAuthCode}`);
 
 			rp.post({
 				url: 'https://slack.com/api/oauth.access',
@@ -52,6 +52,7 @@
 				debug('successfully saved user');
 				res.render(`${__dirname}/views/success.html`, {});
 			}).catch(err => {
+				debug('error authorizing user');
 				renderErrorPage(err);
 			});
 		}
@@ -127,7 +128,7 @@
 	});
 
 	function renderErrorPage(error) {
-		debug(err);
+		debug(error);
 		res.render(`${__dirname}/views/error.html`, {
 			error
 		});

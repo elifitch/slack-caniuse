@@ -36,3 +36,6 @@ Need to expose the local port with Ngrok, and edit the URLs in the slack app das
 ## Passive Reminder Outline
 - [ ] Build list of browsers that has an order, so you can identify what the current, and nearly current versions are
 - [ ] When you get new feature data in, take their support data and look at the most recent browser, compare it against the one just before that. If they're different, send a message.
+
+## Questions
+* When auth'd with multiple teams, do you have multiple tokens? Or do you always make requests on behalf of a team.

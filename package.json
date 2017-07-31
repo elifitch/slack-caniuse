@@ -35,6 +35,7 @@
     "nunjucks": "^2.4.2",
     "request-promise": "^2.0.1",
     "safe-json-parse": "^4.0.0",
+    "socket.io": "^2.0.3",
     "underscore": "^1.8.3"
   }
 }

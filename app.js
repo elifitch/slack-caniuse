@@ -19,7 +19,7 @@
 		autoescape: true,
 		express: app
 	});
-	debug('fooooooo')
+
 	app.use(bodyParser.urlencoded({ extended: false }));
 	app.use('/', routes);
 
