@@ -29,6 +29,7 @@ Need to expose the local port with Ngrok, and edit the URLs in the slack app das
 - [x] Advanced/styled query with slash command
 - [ ] Passive reminders when features change
 	- [ ] Make sure we don't remind a team twice about the same changed feature
+- [ ] Don't hard code bot id & token as env var. Need to look up by team/user/channel
 - [ ] Better error handling
 - [ ] Investigate performance around encode/decode dots in feature model
 - [ ] Tests
@@ -38,4 +39,5 @@ Need to expose the local port with Ngrok, and edit the URLs in the slack app das
 - [ ] When you get new feature data in, take their support data and look at the most recent browser, compare it against the one just before that. If they're different, send a message.
 
 ## Questions
-* When more than one team has a bot, how does that change how it responds to socket messages
+* Error messages? "I'm sorry I didn't understand your request. Could you be more specific? Something like @caniuse-bot can i use css grid. Or maybe something like @caniuse-bot css grid."
+* Reference this https://github.com/slackapi/node-slack-events-api/blob/4ca619723dc37f7966e3a3e808ea3f8cba46f3c9/examples/greet-and-react/index.js#L72-L86

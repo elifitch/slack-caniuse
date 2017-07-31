@@ -1,14 +1,20 @@
 const Promise = require('bluebird');
 const request = require('request-promise');
 const createSlackEventAdapter = require('@slack/events-api').createSlackEventAdapter;
-// const slackEvents = createSlackEventAdapter(process.env.SLACK_VERIFICATION_TOKEN);
-
+const PHRASES_TO_IGNORE = [
+	'caniuse',
+	'can i use',
+	'can_i_use',
+	'can-i-use'
+];
+const features = require('../models/features.model.js');
 
 module.exports = (function() {
 	let slackEvents = null;
 	return {
 		init,
-		slackEventAdapter
+		slackEventAdapter,
+		postMessage
 	}
 
 	function init(slackEvents) {
@@ -30,11 +36,31 @@ module.exports = (function() {
 
 	function _onMessage(event) {
 		console.log(event);
-		if (!_mentionsSlackbot(event.text) || !_validUser(event.user)) {
+		if (!event.type === 'message' || !_mentionsSlackbot(event.text) || !_validUser(event.user)) {
 			return;
 		}
+		const searchTerms = _createFeatureQuery(event.text);
+		features.findFeature(searchTerms).then(searchResults => {
+			postMessage(Object.assign(event, {text:JSON.stringify(searchResults)}));
+		});
 		console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
-		_postMessage(event);
+	}
+
+	function postMessage(messageEvent) {
+		// messageEvent schema
+		// { type: 'message',
+		// user: 'U1D5EJ5AQ',
+		// text: '<@U6BQH5DH7> hey der',
+		// ts: '1501536858.189745',
+		// channel: 'C1D4ADC9Z',
+		// event_ts: '1501536858.189745' }
+		return request
+			.post('https://slack.com/api/chat.postMessage')
+			.form({
+				token: process.env.TEMP_SLACK_BOT_TOKEN,
+				channel: messageEvent.channel,
+				text: messageEvent.text
+			});
 	}
 
 	function _mentionsSlackbot(messageText) {
@@ -48,17 +74,17 @@ module.exports = (function() {
 		return false;
 	}
 
-	function _postMessage(messageEvent) {
-		request
-			.post('https://slack.com/api/chat.postMessage')
-			.form({
-				token: process.env.TEMP_SLACK_BOT_TOKEN,
-				channel: 'C1D4ADC9Z',
-				text: messageEvent.text
-			})
-	}
+	function _createFeatureQuery(messageText) {
+		// TODO: This func is brittle? potential point of failure?
+		const botId = process.env.TEMP_SLACK_BOT_ID;
+		// split message on first mention of bot, take right half of that message
+		messageText = messageText.split(`<@${botId}>`)[1];
+		PHRASES_TO_IGNORE.forEach(phrase => {
+			// trims message of all phrases we can safely ignore, like "can i use"
+			// ig => case insensitive, global
+			messageText = messageText.replace(new RegExp(phrase, 'ig'), '');
+		});
 
-	function _validateQuery(messageText) {
-
+		return messageText.trim();
 	}
 })()
