@@ -41,7 +41,7 @@ module.exports = (function() {
 	}
 
 	function _onMessage(event, body) {
-		console.log(body);
+		// console.log(body);
 		if (!event.type === 'message') {
 			return;
 		}
@@ -60,18 +60,24 @@ module.exports = (function() {
 			]);
 		})
 		.then(([searchResults, botToken]) => {
-			console.log(searchResults);
-			postMessage({
-				messageEvent: Object.assign(event, {text:JSON.stringify(searchResults)}),
-				token: botToken
-			});
+			console.log(searchResults.length);
+			if (searchResults.length === 1) {
+				const responseText = _formatMessage(searchResults[0]);
+				postMessage({
+					messageEvent: Object.assign(event, {
+						// text: responseText
+						text: JSON.stringify(searchResults)
+					}),
+					token: botToken
+				});
+			}
 		})
 		.catch(err => {
 			if (err !== BOT_NOT_MENTIONED_ERR) {
 				debug('error in processing slack message: ', err);
 			}
 		})
-		console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
+		// console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
 	}
 
 	function postMessage({messageEvent, token}) {
@@ -116,5 +122,9 @@ module.exports = (function() {
 		});
 
 		return messageText.trim();
+	}
+
+	function _formatMessage(feature) {
+		console.log(JSON.stringify(feature))
 	}
 })()

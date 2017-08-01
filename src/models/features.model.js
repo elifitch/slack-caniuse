@@ -53,17 +53,18 @@ module.exports = (function() {
 		})
 	}
 
-	function findFeature(featureName) {
+	function findFeature(query) {
 		const db = dbService.getDb();
 		const features = db.collection('features');
 
 		return new Promise((resolve, reject) => {
 			// $regex: .*someString*. = contains someString
 			features.find({$or:[
-					{'data.title': new RegExp(`.*${featureName}.*`, 'gi')},
+					{'data.title': new RegExp(`.*${query}.*`, 'gi')},
+					{'name': new RegExp(`.*${query}.*`, 'gi')},
 					// For now, not searching description, too loose.
-					{'data.description': new RegExp(`.*${featureName}.*`, 'gi')},
-					{'data.keywords': new RegExp(`.*${featureName}.*`, 'gi')}
+					// {'data.description': new RegExp(`.*${query}.*`, 'gi')},
+					{'data.keywords': new RegExp(`.*${query}.*`, 'gi')}
 				]}).toArray((err, docs) => {
 					if (docs && docs.length <= 3) {
 						const decoded = docs.map(doc => dbUtils.decodeDots(doc));
