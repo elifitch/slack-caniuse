@@ -26,6 +26,7 @@ module.exports = (function() {
 
 		const db = dbService.getDb();
 		const clients = db.collection('clients');
+		clientCache.del(dataToSave.team_id);
 
 		// upsert clients based on team id
 		return clients.update({team_id: dataToSave.team_id}, dataToSave, {
@@ -66,6 +67,7 @@ module.exports = (function() {
 
 	function _addClientToCache(teamId, clientData) {
 		const oneHour = 3600000; //ms
-		clientCache.put(teamId, clientData, oneHour);
+		const oneDay = oneHour * 24;
+		clientCache.put(teamId, clientData, oneDay);
 	}
 })()
