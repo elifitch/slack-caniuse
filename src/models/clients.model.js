@@ -43,6 +43,7 @@ module.exports = (function() {
 			const cachedClient = clientCache.get(teamId);
 			if (cachedClient) {
 				resolve(cachedClient);
+				return;
 			}
 
 			clients.find({team_id: teamId}).toArray((err, data) => {

@@ -4,6 +4,7 @@ const request = require('request-promise');
 const createSlackEventAdapter = require('@slack/events-api').createSlackEventAdapter;
 const features = require('../models/features.model.js');
 const clients = require('../models/clients.model.js');
+const messageUtils = require('../lib/message.utils');
 
 const PHRASES_TO_IGNORE = [
 	'caniuse',
@@ -60,9 +61,8 @@ module.exports = (function() {
 			]);
 		})
 		.then(([searchResults, botToken]) => {
-			console.log(searchResults.length);
 			if (searchResults.length === 1) {
-				const responseText = _formatMessage(searchResults[0]);
+				const responseText = messageUtils.singleFeature(searchResults[0]);
 				postMessage({
 					messageEvent: Object.assign(event, {
 						// text: responseText
@@ -124,7 +124,4 @@ module.exports = (function() {
 		return messageText.trim();
 	}
 
-	function _formatMessage(feature) {
-		console.log(JSON.stringify(feature))
-	}
 })()

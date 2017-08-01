@@ -1,14 +1,17 @@
 'use strict';
+const debug = require('debug')('app:browsers-model');
+const Promise = require('bluebird');
+const dbService = require('../services/database.service.js');
+const dbUtils = require('../lib/database.utils.js');
+const cache = require('memory-cache');
 
 module.exports = (function() {
-	const debug = require('debug')('app:browsers-model');
-	const Promise = require('bluebird');
-	const dbService = require('../services/database.service.js');
-	const dbUtils = require('../lib/database.utils.js');
+	const browserCache = new cache.Cache();
 
 	return {
 		makeBrowsers,
 		getBrowsers,
+		getBrowserByName,
 		getCurrentAndLastBrowsers
 	}
 
@@ -29,9 +32,15 @@ module.exports = (function() {
 			}
 		});
 
+		browserCache.put(
+			'ALL_BROWSERS',
+			_collectionByName(browserList)
+		);
+
 		return Promise.all(
 			browserList.map(browser => {
 				debug(`Upserting browser to db: ${browser.name}`);
+				browserCache.put(browser.name, browser);
 				return browsers.update({name: browser.name}, browser, {
 					upsert: true
 				})
@@ -39,17 +48,41 @@ module.exports = (function() {
 		);
 	}
 
-	function getBrowsers() {
-		/* returns array of all browser data */
-		const db = dbService.getDb();
-		const browsers = db.collection('browsers');
-
+	function getBrowserByName(name) {
 		return new Promise((resolve, reject) => {
+			const cachedBrowser = browserCache.get(name);
+			if (cachedBrowser) {
+				resolve(cachedBrowser);
+				return;
+			}
+			browsers.find({name}).toArray((err, docs) => {
+				if (err) {
+					reject(err);
+				} else {
+					resolve(docs[0]);
+				}
+			});
+		});
+	}
+
+	function getBrowsers() {
+		/* returns obj of objs keyed by browser name */
+		return new Promise((resolve, reject) => {
+			const cachedAllBrowsers = browserCache.get('ALL_BROWSERS');
+			if (cachedAllBrowsers) {
+				console.log('getting all browsers from cache');
+				resolve(cachedAllBrowsers);
+				return;
+			}
+			const db = dbService.getDb();
+			const browsers = db.collection('browsers');
+
 			browsers.find({}).toArray((err, docs) => {
 				if (err) {
 					reject(err);
 				} else {
-					resolve(docs);
+					console.log('getting all browsers from db');
+					resolve(_collectionByName(docs));
 				}
 			});
 		});
@@ -57,6 +90,7 @@ module.exports = (function() {
 
 	function getCurrentAndLastBrowsers() {
 		/* returns object of objects, keyed by browser name, omits granular version data */
+		// TODO: integrate caching
 		const db = dbService.getDb();
 		const browsers = db.collection('browsers');
 
@@ -76,6 +110,13 @@ module.exports = (function() {
 				}
 			});
 		});
+	}
+
+	function _collectionByName(browserList) {
+		return browserList.reduce((obj, browser) => {
+			obj[browser.name] = browser;
+			return obj;
+		}, {});
 	}
 
 })()

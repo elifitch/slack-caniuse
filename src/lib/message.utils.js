@@ -1,4 +1,10 @@
 'use strict';
+// TODO:
+// If this is a util, it should not have exterior dependencies
+// Coudld be a subservice from slack service
+// Get it working first though.
+
+const browsers = require('../models/browsers.model');
 
 module.exports = (function() {
 
@@ -9,6 +15,10 @@ module.exports = (function() {
 
 	//public api
 	function singleFeature(feature) {
+		browsers.getBrowsers().then(browsers => {
+			console.log('got browsers');
+		})
+		// _formatBrowserSupport(feature.data.stats.chrome);
 		const data = feature.data;
 		const response = {
 			attachments: [
@@ -88,7 +98,6 @@ module.exports = (function() {
 				}
 			]
 		}
-		console.log(feature);
 	}
 
 	function mutliFeature(features) {
@@ -127,6 +136,8 @@ module.exports = (function() {
 		// * check feature's current status.  Will need browser data for this. Cache. It.
 		// * Check how far back that status has been the case
 		// * Say "supported since v whatever"
+
+		console.log(supportData);
 
 	}
 
