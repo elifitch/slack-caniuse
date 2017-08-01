@@ -1,13 +1,14 @@
 'use strict';
 
 module.exports = (function() {
-	const debug = require('debug')('app:users-model');
+	const debug = require('debug')('app:clients-model');
 	const Promise = require('bluebird');
 	const dbService = require('../services/database.service.js');
 
 	return {
 		createClient,
-		getClient
+		getClientByTeamId,
+		getBotAuthByTeamId
 	}
 
 	function createClient(clientData) {
@@ -30,17 +31,27 @@ module.exports = (function() {
 		});
 	}
 
-	function getClient(teamId) {
+	function getClientByTeamId(teamId) {
 		const db = dbService.getDb();
 		const clients = db.collection('clients');
 
 		return new Promise((resolve, reject) => {
 			clients.find({team_id: teamId}).toArray((err, data) => {
 				if (err) {
+					debug('Error getting client by team id: ', err);
 					reject(err);
 				}
 				resolve(data);
 			});
 		});
+	}
+
+	function getBotAuthByTeamId(teamId) {
+		const db = dbService.getDb();
+		const clients = db.collection('clients');
+
+		return getClientByTeamId(teamId).then(client => {
+			return client[0].bot.bot_access_token;
+		})
 	}
 })()
