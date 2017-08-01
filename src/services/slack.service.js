@@ -1,3 +1,4 @@
+const debug = require('debug')('app:slack-service');
 const Promise = require('bluebird');
 const request = require('request-promise');
 const createSlackEventAdapter = require('@slack/events-api').createSlackEventAdapter;
@@ -10,6 +11,7 @@ const PHRASES_TO_IGNORE = [
 	'can_i_use',
 	'can-i-use'
 ];
+const BOT_NOT_MENTIONED_ERR = 'Bot not mentioned';
 
 module.exports = (function() {
 	let slackEvents = null;
@@ -40,27 +42,34 @@ module.exports = (function() {
 
 	function _onMessage(event, body) {
 		console.log(body);
-		// TODO: figure out how to look up the bot user ID to make sure the
-		// message is mentioning the bot. Don't want to hammer the DB with a query
-		// every time a message is sent in slack. Maybe cache like 20 clients in memory?
-		if (!event.type === 'message' || !_mentionsSlackbot(event.text) || !_validUser(event.user)) {
+		if (!event.type === 'message') {
 			return;
 		}
-		const searchTerms = _createFeatureQuery(event.text);
-		Promise.all([
-			features.findFeature(searchTerms),
-			clients.getBotAuthByTeamId(body.team_id)
-		])
+		clients.getClientByTeamId(body.team_id).then(client => {
+			if (!_mentionsSlackbot(event.text, client.bot.bot_user_id)) {
+				// TODO: feel like this early exit could be more elegant?
+				throw(BOT_NOT_MENTIONED_ERR);
+			}
+			return client;
+		})
+		.then(client => {
+			const searchTerms = _createFeatureQuery(event.text, client.bot.bot_user_id);
+			return Promise.all([
+				features.findFeature(searchTerms),
+				clients.getBotAuthByTeamId(body.team_id)
+			]);
+		})
 		.then(([searchResults, botToken]) => {
 			console.log(searchResults);
-			console.log(botToken);
 			postMessage({
 				messageEvent: Object.assign(event, {text:JSON.stringify(searchResults)}),
 				token: botToken
 			});
 		})
 		.catch(err => {
-
+			if (err !== BOT_NOT_MENTIONED_ERR) {
+				debug('error in processing slack message: ', err);
+			}
 		})
 		console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
 	}
@@ -82,20 +91,22 @@ module.exports = (function() {
 			});
 	}
 
-	function _mentionsSlackbot(messageText) {
-		return messageText.includes(process.env.TEMP_SLACK_BOT_ID);
+	function _mentionsSlackbot(messageText, botId) {
+		return messageText.includes(botId);
 	}
 
-	function _validUser(userId) {
-		if (userId && userId !== process.env.TEMP_SLACK_BOT_ID) {
+	function _validUser(userId, botId) {
+		// TODO: Better user validation, if needed at all
+		// This func is junc
+		if (userId && userId !== botId) {
 			return true;
 		}
 		return false;
 	}
 
-	function _createFeatureQuery(messageText) {
+	function _createFeatureQuery(messageText, botId) {
 		// TODO: This func is brittle? potential point of failure?
-		const botId = process.env.TEMP_SLACK_BOT_ID;
+
 		// split message on first mention of bot, take right half of that message
 		messageText = messageText.split(`<@${botId}>`)[1];
 		PHRASES_TO_IGNORE.forEach(phrase => {

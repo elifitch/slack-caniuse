@@ -14,6 +14,7 @@ module.exports = (function() {
 	}
 
 	function createClient(clientData) {
+		// TODO: enforce presence of stuff like bot, bot user id, bot token, etc
 		const dataToSave = {
 			access_token: clientData.access_token,
 			scope: clientData.scope,
