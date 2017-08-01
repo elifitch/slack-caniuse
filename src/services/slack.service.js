@@ -1,13 +1,15 @@
 const Promise = require('bluebird');
 const request = require('request-promise');
 const createSlackEventAdapter = require('@slack/events-api').createSlackEventAdapter;
+const features = require('../models/features.model.js');
+const clients = require('../models/clients.model.js');
+
 const PHRASES_TO_IGNORE = [
 	'caniuse',
 	'can i use',
 	'can_i_use',
 	'can-i-use'
 ];
-const features = require('../models/features.model.js');
 
 module.exports = (function() {
 	let slackEvents = null;
@@ -30,18 +32,22 @@ module.exports = (function() {
 		if (slackEvents) {
 			return slackEvents;
 		}
-		slackEvents = createSlackEventAdapter(slackVerificationToken)
+		slackEvents = createSlackEventAdapter(slackVerificationToken, {
+			includeBody: true
+		});
 		return slackEvents;
 	}
 
-	function _onMessage(event) {
-		console.log(event);
+	function _onMessage(event, body) {
 		if (!event.type === 'message' || !_mentionsSlackbot(event.text) || !_validUser(event.user)) {
 			return;
 		}
 		const searchTerms = _createFeatureQuery(event.text);
 		features.findFeature(searchTerms).then(searchResults => {
 			postMessage(Object.assign(event, {text:JSON.stringify(searchResults)}));
+		});
+		clients.getBotAuthByTeamId(body.team_id).then(data => {
+			console.log(data);
 		});
 		console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
 	}

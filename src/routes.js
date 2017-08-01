@@ -5,7 +5,7 @@
 	const express = require('express');
 	const router = express.Router();
 	const features = require('./models/features.model.js');
-	const users = require('./models/users.model.js');
+	const clients = require('./models/clients.model.js');
 	const rp = require('request-promise');
 	const safeParse = require("safe-json-parse/callback");
 
@@ -41,18 +41,18 @@
 					redirect_uri: redirectUri
 				}
 			}).then(body => {
-				const userData = JSON.parse(body);
-				if (userData.ok) {
-					return users.createUser(userData);
+				const clientData = JSON.parse(body);
+				if (clientData.ok) {
+					return clients.createClient(clientData);
 				} else {
 					// this will be caught below
 					throw('data back from slack was not ok');
 				}
 			}).then(() => {
-				debug('successfully saved user');
+				debug('successfully saved client');
 				res.render(`${__dirname}/views/success.html`, {});
 			}).catch(err => {
-				debug('error authorizing user');
+				debug('error authorizing client');
 				renderErrorPage(err);
 			});
 		}
