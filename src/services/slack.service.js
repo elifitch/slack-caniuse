@@ -39,20 +39,33 @@ module.exports = (function() {
 	}
 
 	function _onMessage(event, body) {
+		console.log(body);
+		// TODO: figure out how to look up the bot user ID to make sure the
+		// message is mentioning the bot. Don't want to hammer the DB with a query
+		// every time a message is sent in slack. Maybe cache like 20 clients in memory?
 		if (!event.type === 'message' || !_mentionsSlackbot(event.text) || !_validUser(event.user)) {
 			return;
 		}
 		const searchTerms = _createFeatureQuery(event.text);
-		features.findFeature(searchTerms).then(searchResults => {
-			postMessage(Object.assign(event, {text:JSON.stringify(searchResults)}));
-		});
-		clients.getBotAuthByTeamId(body.team_id).then(data => {
-			console.log(data);
-		});
+		Promise.all([
+			features.findFeature(searchTerms),
+			clients.getBotAuthByTeamId(body.team_id)
+		])
+		.then(([searchResults, botToken]) => {
+			console.log(searchResults);
+			console.log(botToken);
+			postMessage({
+				messageEvent: Object.assign(event, {text:JSON.stringify(searchResults)}),
+				token: botToken
+			});
+		})
+		.catch(err => {
+
+		})
 		console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
 	}
 
-	function postMessage(messageEvent) {
+	function postMessage({messageEvent, token}) {
 		// messageEvent schema
 		// { type: 'message',
 		// user: 'U1D5EJ5AQ',
@@ -63,7 +76,7 @@ module.exports = (function() {
 		return request
 			.post('https://slack.com/api/chat.postMessage')
 			.form({
-				token: process.env.TEMP_SLACK_BOT_TOKEN,
+				token,
 				channel: messageEvent.channel,
 				text: messageEvent.text
 			});
