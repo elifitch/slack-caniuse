@@ -61,14 +61,14 @@ module.exports = (function() {
 				attachments: [
 					{
 						// fallback: 'Required plain-text summary of the attachment.',
-						fallback: `${feature.data.title} is somewhat supported. Visit <http://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
+						fallback: `${feature.data.title} is somewhat supported. Visit <http://caniuse.com/#search=${feature.data.title}|caniuse.com> for more details.`,
 						color: '#FFCB6B',
 						// pretext: 'Optional text that appears above the attachment block',
 						// author_name: 'Bobby Tables',
 						// author_link: 'http://flickr.com/bobby/',
 						// author_icon: 'http://flickr.com/icons/bobby.jpg',
 						title: feature.data.title,
-						title_link: `https://caniuse.com/#search=${feature.name}`,
+						title_link: `https://caniuse.com/#search=${feature.data.title}`,
 						text: feature.data.description,
 						fields: _formatBrowserSupport(
 							Object.assign(feature.data.stats, {globalSupport}),
@@ -112,11 +112,11 @@ module.exports = (function() {
 			text: '',
 			attachments: [
 				{
-					fallback: `Over ${YES_THRESHOLD}% of users support ${feature.data.title}!\nVisit <https://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
+					fallback: `Over ${YES_THRESHOLD}% of users support ${feature.data.title}!\nVisit <https://caniuse.com/#search=${feature.data.title}|caniuse.com> for more details.`,
 					color: '#A3D366',
 					fields: [{
 						title: 'Yep 🎉',
-						value: `Over ${YES_THRESHOLD}% of users support ${feature.data.title}!\nVisit <https://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
+						value: `Over ${YES_THRESHOLD}% of users support ${feature.data.title}!\nVisit <https://caniuse.com/#search=${feature.data.title}|caniuse.com> for more details.`,
 						short: false
 					}]
 				}
@@ -128,11 +128,11 @@ module.exports = (function() {
 			text: '',
 			attachments: [
 				{
-					fallback: `Less than ${NO_THRESHOLD}% of users support ${feature.data.title}.\nVisit <https://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
+					fallback: `Less than ${NO_THRESHOLD}% of users support ${feature.data.title}.\nVisit <https://caniuse.com/#search=${feature.data.title}|caniuse.com> for more details.`,
 					color: '#DD4B64',
 					fields: [{
 						title: 'Nope 😕',
-						value: `Less than ${NO_THRESHOLD}% of users support ${feature.data.title}.\nVisit <https://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
+						value: `Less than ${NO_THRESHOLD}% of users support ${feature.data.title}.\nVisit <https://caniuse.com/#search=${feature.data.title}|caniuse.com> for more details.`,
 						short: false
 					}]
 				}
