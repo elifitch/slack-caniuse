@@ -35,6 +35,8 @@ const BROWSER_DISPLAY_NAMES = {
 	ios_saf: 'IOS Safari',
 	and_chr: 'Android Chrome'
 };
+const YES_THRESHOLD = 90;
+const NO_THRESHOLD = 20;
 
 module.exports = (function() {
 
@@ -45,10 +47,11 @@ module.exports = (function() {
 
 	//public api
 	function singleFeature(feature) {
-		if (feature.usage_perc_y >= 90) {
+		const globalSupport = feature.data.usage_perc_y + feature.data.usage_perc_a;
+		if (globalSupport >= YES_THRESHOLD) {
 			// Broad support everywhere
 			return _featureSupportedMessage(feature);
-		} else if (feature.usage_perc_y <= 20) {
+		} else if (globalSupport <= NO_THRESHOLD) {
 			// not well supported yet
 			return _featureNotSupportedMessage(feature);
 		}
@@ -58,7 +61,7 @@ module.exports = (function() {
 				attachments: [
 					{
 						// fallback: 'Required plain-text summary of the attachment.',
-						fallback: `${feature.data.title} is somewhat supported. Visit <http://caniuse.com|caniuse.com> for more details.`,
+						fallback: `${feature.data.title} is somewhat supported. Visit <http://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
 						color: '#FFCB6B',
 						// pretext: 'Optional text that appears above the attachment block',
 						// author_name: 'Bobby Tables',
@@ -68,7 +71,7 @@ module.exports = (function() {
 						title_link: `https://caniuse.com/#search=${feature.name}`,
 						text: feature.data.description,
 						fields: _formatBrowserSupport(
-							Object.assign(feature.data.stats, {usage_perc_y: feature.data.usage_perc_y}),
+							Object.assign(feature.data.stats, {globalSupport}),
 							browserData
 						),
 						// image_url: 'http://my-website.com/path/to/image.jpg',
@@ -105,6 +108,39 @@ module.exports = (function() {
 		}
 	}
 
+	function _featureSupportedMessage(feature) {
+		return {
+			text: '',
+			attachments: [
+				{
+					fallback: `Over ${YES_THRESHOLD}% of users support ${feature.data.title}!\nVisit <https://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
+					color: '#A3D366',
+					fields: [{
+						title: 'Yep 🎉',
+						value: `Over ${YES_THRESHOLD}% of users support ${feature.data.title}!\nVisit <https://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
+						short: false
+					}]
+				}
+			]
+		}
+	}
+	function _featureNotSupportedMessage(feature) {
+		return {
+			text: '',
+			attachments: [
+				{
+					fallback: `Less than ${NO_THRESHOLD}% of users support ${feature.data.title}.\nVisit <https://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
+					color: '#DD4B64',
+					fields: [{
+						title: 'Nope 😕',
+						value: `Less than ${NO_THRESHOLD}% of users support ${feature.data.title}.\nVisit <https://caniuse.com/#search=${feature.name}|caniuse.com> for more details.`,
+						short: false
+					}]
+				}
+			]
+		}
+	}
+
 	function _formatBrowserSupport(featureSupportData, browserData) {
 		const relevantStats = Object.keys(featureSupportData)
 			.filter(browserName => RELEVANT_BROWSERS.indexOf(browserName.toLowerCase()) >= 0)
@@ -117,10 +153,9 @@ module.exports = (function() {
 				return statsArray;
 			}, []);
 
-		debug(featureSupportData.usage_perc_y);
 		relevantStats.push({
 			title: 'Global support',
-			value: `${featureSupportData.usage_perc_y}%`,
+			value: `${featureSupportData.globalSupport}%`,
 			short: true
 		})
 
