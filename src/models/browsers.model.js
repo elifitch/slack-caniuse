@@ -70,7 +70,7 @@ module.exports = (function() {
 		return new Promise((resolve, reject) => {
 			const cachedAllBrowsers = browserCache.get('ALL_BROWSERS');
 			if (cachedAllBrowsers) {
-				console.log('getting all browsers from cache');
+				debug('getting all browsers from cache');
 				resolve(cachedAllBrowsers);
 				return;
 			}
@@ -81,7 +81,7 @@ module.exports = (function() {
 				if (err) {
 					reject(err);
 				} else {
-					console.log('getting all browsers from db');
+					debug('getting all browsers from db');
 					resolve(_collectionByName(docs));
 				}
 			});

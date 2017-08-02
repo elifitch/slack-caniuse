@@ -64,9 +64,6 @@ module.exports = (function() {
 						// author_name: 'Bobby Tables',
 						// author_link: 'http://flickr.com/bobby/',
 						// author_icon: 'http://flickr.com/icons/bobby.jpg',
-						author_name: 'Bobby Tables',
-						author_link: 'http://flickr.com/bobby/',
-						author_icon: 'https://platform.slack-edge.com/img/default_application_icon.png',
 						title: feature.data.title,
 						title_link: `https://caniuse.com/#search=${feature.name}`,
 						text: feature.data.description,
@@ -74,11 +71,11 @@ module.exports = (function() {
 							Object.assign(feature.data.stats, {usage_perc_y: feature.data.usage_perc_y}),
 							browserData
 						),
-						image_url: 'http://my-website.com/path/to/image.jpg',
-						thumb_url: 'http://example.com/path/to/thumb.png',
+						// image_url: 'http://my-website.com/path/to/image.jpg',
+						// thumb_url: 'http://example.com/path/to/thumb.png',
 						footer: 'Slack-Caniuse',
 						footer_icon: 'https://platform.slack-edge.com/img/default_application_icon.png',
-						ts: 123456789
+						ts: Date.now()
 					}
 				]
 			}
@@ -115,7 +112,7 @@ module.exports = (function() {
 				if (CURRENT_SUPPORT_ONLY.indexOf(browserName) >= 0) {
 					statsArray.push(_formatCurrentSupport(browserName, featureSupportData[browserName], browserData))
 				} else {
-					statsArray.push(_formatGranularSupport(browserName, featureSupportData[browserName], browserData))
+					statsArray.push(_formatGranularSupport(browserName, featureSupportData[browserName]))
 				}
 				return statsArray;
 			}, []);
@@ -146,7 +143,7 @@ module.exports = (function() {
 		}
 	}
 
-	function _formatGranularSupport(browserName, supportData, browserData) {
+	function _formatGranularSupport(browserName, supportData) {
 		const relevantVersions = GRANULAR_SUPPORT[browserName];
 		const supportValues = relevantVersions.map(versionNum => supportData[versionNum]);
 		let textContent = '';
