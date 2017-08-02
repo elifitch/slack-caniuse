@@ -12,27 +12,28 @@ const RELEVANT_BROWSERS = [
 	'ie',
 	'edge',
 	'safari',
-	'ios safari',
-	'android chrome'
+	'ios_saf',
+	'and_chr'
 ];
 const CURRENT_SUPPORT_ONLY = [
 	'chrome',
 	'firefox',
 	'edge',
 	'safari',
-	'ios safari',
-	'android chrome'
+	'ios_saf',
+	'and_chr'
 ];
 const GRANULAR_SUPPORT = {
 	ie: [8, 9, 10, 11]
 };
 const BROWSER_DISPLAY_NAMES = {
-	'ie': 'IE',
-	'firefox': 'Firefox',
-	'edge': 'Edge',
-	'safari': 'Safari',
-	'ios safari': 'IOS Safari',
-	'android chrome': 'Android Chrome'
+	chrome: 'Chrome',
+	firefox: 'Firefox',
+	ie: 'IE',
+	edge: 'Edge',
+	safari: 'Safari',
+	ios_saf: 'IOS Safari',
+	and_chr: 'Android Chrome'
 };
 
 module.exports = (function() {
@@ -44,43 +45,42 @@ module.exports = (function() {
 
 	//public api
 	function singleFeature(feature) {
-		// if (feature.usage_perc_y >= 90) {
-		// 	// Broad support everywhere
-		// 	return _featureSupportedMessage(feature);
-		// } else if (feature.usage_perc_y <= 20) {
-		// 	// not well supported yet
-		// 	return _featureNotSupportedMessage(feature);
-		// }
-		browsers.getBrowsers().then(browserData => {
-			console.log(_formatBrowserSupport(feature.data.stats, browserData))
-			const data = feature.data;
+		if (feature.usage_perc_y >= 90) {
+			// Broad support everywhere
+			return _featureSupportedMessage(feature);
+		} else if (feature.usage_perc_y <= 20) {
+			// not well supported yet
+			return _featureNotSupportedMessage(feature);
+		}
+		return browsers.getBrowsers().then(browserData => {
 			const response = {
+				text: `Browser support information for ${feature.data.title} from caniuse.com:`,
 				attachments: [
 					{
 						// fallback: 'Required plain-text summary of the attachment.',
-						fallback: 'Required plain-text summary of the attachment.',
-						// color: '#36a64f',
-						color: 'red',
+						fallback: `${feature.data.title} is somewhat supported. Visit <http://caniuse.com|caniuse.com> for more details.`,
+						color: '#FFCB6B',
 						// pretext: 'Optional text that appears above the attachment block',
-						pretext: 'Not really.',
 						// author_name: 'Bobby Tables',
 						// author_link: 'http://flickr.com/bobby/',
 						// author_icon: 'http://flickr.com/icons/bobby.jpg',
-						// title: 'Slack API Documentation',
-						title: data.title,
-						// title_link: 'https://api.slack.com/',
+						author_name: 'Bobby Tables',
+						author_link: 'http://flickr.com/bobby/',
+						author_icon: 'https://platform.slack-edge.com/img/default_application_icon.png',
+						title: feature.data.title,
 						title_link: `https://caniuse.com/#search=${feature.name}`,
-						// text: 'Optional text that appears within the attachment',
-						text: data.description,
+						text: feature.data.description,
 						fields: _formatBrowserSupport(feature.data.stats, browserData),
 						image_url: 'http://my-website.com/path/to/image.jpg',
 						thumb_url: 'http://example.com/path/to/thumb.png',
-						footer: 'Slack API',
+						footer: 'Slack-Caniuse',
 						footer_icon: 'https://platform.slack-edge.com/img/default_application_icon.png',
 						ts: 123456789
 					}
 				]
 			}
+
+			return response;
 		});
 	}
 
@@ -106,33 +106,21 @@ module.exports = (function() {
 	}
 
 	function _formatBrowserSupport(featureSupportData, browserData) {
-		// RE-FOCUS ON WHAT USERS NEED
-		// Chrome: currently (un)supported, etc
-		// FF: currently xxxxxx
-		// Edge: currently xxxxxx
-		// IE: Supported by IE x, x, x; Unsupported
-		// IOS Safari: currently supported
-		// Android Chrome: currently supported
-		// EVERYTHING ELSE THEY CAN ASK FOR MORE INFO WITH LINKS
-
-
 		const relevantStats = Object.keys(featureSupportData)
 			.filter(browserName => RELEVANT_BROWSERS.indexOf(browserName.toLowerCase()) >= 0)
-			.reduce((statsObj, browserName) => {
+			.reduce((statsArray, browserName) => {
 				if (CURRENT_SUPPORT_ONLY.indexOf(browserName) >= 0) {
-					statsObj[browserName] = _formatCurrentSupport(browserName, featureSupportData[browserName], browserData)
+					statsArray.push(_formatCurrentSupport(browserName, featureSupportData[browserName], browserData))
 				} else {
-					statsObj[browserName] = _formatGranularSupport(browserName, featureSupportData[browserName], browserData)
+					statsArray.push(_formatGranularSupport(browserName, featureSupportData[browserName], browserData))
 				}
-				return statsObj;
-			}, {});
+				return statsArray;
+			}, []);
 
 		return relevantStats;
-
 	}
 
 	function _formatCurrentSupport(browserName, supportData, browserData) {
-		debug(browserName);
 		const status = supportData[browserData[browserName].data.currentVersion];
 		let textContent = 'Not supported';
 		if (status.includes('y')) {
@@ -171,7 +159,7 @@ module.exports = (function() {
 		} else if (partialText && !supportedText) {
 			textContent = partialText;
 		} else {
-			textContent = `Unsupported in ${BROWSER_DISPLAY_NAMES[browserName]}`;
+			textContent = 'Not supported';
 		}
 
 		return {

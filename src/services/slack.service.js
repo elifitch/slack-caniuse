@@ -43,34 +43,37 @@ module.exports = (function() {
 
 	function _onMessage(event, body) {
 		// console.log(body);
+		let client;
 		if (!event.type === 'message') {
 			return;
 		}
-		clients.getClientByTeamId(body.team_id).then(client => {
-			if (!_mentionsSlackbot(event.text, client.bot.bot_user_id)) {
+		clients.getClientByTeamId(body.team_id).then(clientData => {
+			if (!_mentionsSlackbot(event.text, clientData.bot.bot_user_id)) {
 				// TODO: feel like this early exit could be more elegant?
 				throw(BOT_NOT_MENTIONED_ERR);
 			}
+			client = clientData;
 			return client;
 		})
 		.then(client => {
 			const searchTerms = _createFeatureQuery(event.text, client.bot.bot_user_id);
-			return Promise.all([
-				features.findFeature(searchTerms),
-				clients.getBotAuthByTeamId(body.team_id)
-			]);
+			return features.findFeature(searchTerms)
 		})
-		.then(([searchResults, botToken]) => {
+		.then(searchResults => {
 			if (searchResults.length === 1) {
-				const responseText = messageUtils.singleFeature(searchResults[0]);
-				postMessage({
-					messageEvent: Object.assign(event, {
-						text: responseText
-						// text: JSON.stringify(searchResults)
-					}),
-					token: botToken
-				});
+				return messageUtils.singleFeature(searchResults[0])
 			}
+		})
+		.then(responseText => {
+			postMessage({
+				messageEvent: Object.assign(event, {
+					attachments: JSON.stringify(responseText.attachments),
+					text: ''
+				}),
+				// messageEvent: Object.assign(event, responseText, {text: ''}),
+				token: client.bot.bot_access_token
+			});
+			// debug(Object.assign(event, responseText, {text: ''}))
 		})
 		.catch(err => {
 			if (err !== BOT_NOT_MENTIONED_ERR) {
@@ -88,12 +91,14 @@ module.exports = (function() {
 		// ts: '1501536858.189745',
 		// channel: 'C1D4ADC9Z',
 		// event_ts: '1501536858.189745' }
+
 		return request
 			.post('https://slack.com/api/chat.postMessage')
 			.form({
 				token,
 				channel: messageEvent.channel,
-				text: messageEvent.text
+				text: messageEvent.text,
+				attachments: messageEvent.attachments
 			});
 	}
 
