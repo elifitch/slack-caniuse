@@ -70,7 +70,10 @@ module.exports = (function() {
 						title: feature.data.title,
 						title_link: `https://caniuse.com/#search=${feature.name}`,
 						text: feature.data.description,
-						fields: _formatBrowserSupport(feature.data.stats, browserData),
+						fields: _formatBrowserSupport(
+							Object.assign(feature.data.stats, {usage_perc_y: feature.data.usage_perc_y}),
+							browserData
+						),
 						image_url: 'http://my-website.com/path/to/image.jpg',
 						thumb_url: 'http://example.com/path/to/thumb.png',
 						footer: 'Slack-Caniuse',
@@ -116,6 +119,13 @@ module.exports = (function() {
 				}
 				return statsArray;
 			}, []);
+
+		debug(featureSupportData.usage_perc_y);
+		relevantStats.push({
+			title: 'Global support',
+			value: `${featureSupportData.usage_perc_y}%`,
+			short: true
+		})
 
 		return relevantStats;
 	}
