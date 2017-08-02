@@ -6,16 +6,19 @@ const features = require('../models/features.model.js');
 const clients = require('../models/clients.model.js');
 const messageUtils = require('../lib/message.utils');
 
-const PHRASES_TO_IGNORE = [
-	'caniuse',
-	'can i use',
-	'can_i_use',
-	'can-i-use'
-];
-const BOT_NOT_MENTIONED_ERR = 'Bot not mentioned';
-
 module.exports = (function() {
+	const PHRASES_TO_IGNORE = [
+		'caniuse',
+		'can i use',
+		'can_i_use',
+		'can-i-use'
+	];
+	const BOT_NOT_MENTIONED_ERR = 'Bot not mentioned';
+	const SEARCH_RESULT_LIMIT = 5;
+
+	// slackEvents singleton
 	let slackEvents = null;
+
 	return {
 		init,
 		slackEventAdapter,
@@ -32,6 +35,7 @@ module.exports = (function() {
 	}
 
 	function slackEventAdapter(slackVerificationToken) {
+		// Singleton
 		if (slackEvents) {
 			return slackEvents;
 		}
@@ -57,23 +61,26 @@ module.exports = (function() {
 		})
 		.then(client => {
 			const searchTerms = _createFeatureQuery(event.text, client.bot.bot_user_id);
-			return features.findFeature(searchTerms)
+			return features.findFeature(searchTerms);
 		})
 		.then(searchResults => {
 			if (searchResults.length === 1) {
-				return messageUtils.singleFeature(searchResults[0])
+				return messageUtils.singleFeature(searchResults[0]);
+			} else if (searchResults.length <= 5) {
+				debug(searchResults)
+				return messageUtils.multiFeature(searchResults);
+			} else {
+				debug('too many search results')
 			}
 		})
 		.then(responseText => {
 			postMessage({
 				messageEvent: Object.assign(event, {
 					attachments: JSON.stringify(responseText.attachments),
-					text: ''
+					text: responseText.text
 				}),
-				// messageEvent: Object.assign(event, responseText, {text: ''}),
 				token: client.bot.bot_access_token
 			});
-			// debug(Object.assign(event, responseText, {text: ''}))
 		})
 		.catch(err => {
 			if (err !== BOT_NOT_MENTIONED_ERR) {

@@ -1,10 +1,10 @@
 'use strict';
+const debug = require('debug')('app:features-model');
+const Promise = require('bluebird');
+const dbService = require('../services/database.service.js');
+const dbUtils = require('../lib/database.utils.js');
 
 module.exports = (function() {
-	const debug = require('debug')('app:features-model');
-	const Promise = require('bluebird');
-	const dbService = require('../services/database.service.js');
-	const dbUtils = require('../lib/database.utils.js');
 
 	return {
 		makeFeatures,
@@ -66,11 +66,9 @@ module.exports = (function() {
 					// {'data.description': new RegExp(`.*${query}.*`, 'gi')},
 					{'data.keywords': new RegExp(`.*${query}.*`, 'gi')}
 				]}).toArray((err, docs) => {
-					if (docs && docs.length <= 3) {
+					if (docs) {
 						const decoded = docs.map(doc => dbUtils.decodeDots(doc));
 						resolve(decoded);
-					} else if (docs && docs.length > 3) {
-						reject('Oops! Your query matched too many results. Can you be more specific?');
 					} else {
 						reject(err);
 					}

@@ -42,6 +42,7 @@ Need to expose the local port with Ngrok, and edit the URLs in the slack app das
 ## Future features that would be ✨neato✨
 * Programattically draw (node canvas?) a caniuse.com-esque browser support grid, to be sent along as an image
 * More configurability. What browsers do you want to show up? What versions do you care about? What's your simple yes/no threshold?
+* More flexible search. Try "multiple background images".
 
 ## Questions
 * Error messages? "I'm sorry I didn't understand your request. Could you be more specific? Something like @caniuse-bot can i use css grid. Or maybe something like @caniuse-bot css grid."

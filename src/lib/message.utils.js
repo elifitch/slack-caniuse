@@ -6,43 +6,43 @@ const debug = require('debug')('app:message-utils');
 // Get it working first though.
 
 const browsers = require('../models/browsers.model');
-const RELEVANT_BROWSERS = [
-	'chrome',
-	'firefox',
-	'ie',
-	'edge',
-	'safari',
-	'ios_saf',
-	'and_chr'
-];
-const CURRENT_SUPPORT_ONLY = [
-	'chrome',
-	'firefox',
-	'edge',
-	'safari',
-	'ios_saf',
-	'and_chr'
-];
-const GRANULAR_SUPPORT = {
-	ie: [8, 9, 10, 11]
-};
-const BROWSER_DISPLAY_NAMES = {
-	chrome: 'Chrome',
-	firefox: 'Firefox',
-	ie: 'IE',
-	edge: 'Edge',
-	safari: 'Safari',
-	ios_saf: 'IOS Safari',
-	and_chr: 'Android Chrome'
-};
-const YES_THRESHOLD = 90;
-const NO_THRESHOLD = 20;
 
 module.exports = (function() {
+	const RELEVANT_BROWSERS = [
+		'chrome',
+		'firefox',
+		'ie',
+		'edge',
+		'safari',
+		'ios_saf',
+		'and_chr'
+	];
+	const CURRENT_SUPPORT_ONLY = [
+		'chrome',
+		'firefox',
+		'edge',
+		'safari',
+		'ios_saf',
+		'and_chr'
+	];
+	const GRANULAR_SUPPORT = {
+		ie: [8, 9, 10, 11]
+	};
+	const BROWSER_DISPLAY_NAMES = {
+		chrome: 'Chrome',
+		firefox: 'Firefox',
+		ie: 'IE',
+		edge: 'Edge',
+		safari: 'Safari',
+		ios_saf: 'IOS Safari',
+		and_chr: 'Android Chrome'
+	};
+	const YES_THRESHOLD = 90;
+	const NO_THRESHOLD = 20;
 
 	return {
 		singleFeature,
-		mutliFeature
+		multiFeature
 	}
 
 	//public api
@@ -56,7 +56,7 @@ module.exports = (function() {
 			return _featureNotSupportedMessage(feature);
 		}
 		return browsers.getBrowsers().then(browserData => {
-			const response = {
+			return {
 				text: `Browser support information for ${feature.data.title} from caniuse.com:`,
 				attachments: [
 					{
@@ -82,12 +82,11 @@ module.exports = (function() {
 					}
 				]
 			}
-
-			return response;
 		});
 	}
 
-	function mutliFeature(features) {
+	function multiFeature(features) {
+		debug(features)
 		return {
 			text: 'Your search returned a few results. Which one did you mean?',
 			attachments: features.map(feature => {
