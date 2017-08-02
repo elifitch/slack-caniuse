@@ -65,7 +65,7 @@
 				browsers.getCurrentAndLastBrowsers()
 				.then(features.getUpdatedFeatures)
 				.then(updates => {
-					console.log(updates);
+					// console.log(updates);
 				});
 			});
 		});

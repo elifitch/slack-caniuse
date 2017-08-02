@@ -65,8 +65,8 @@ module.exports = (function() {
 				const responseText = messageUtils.singleFeature(searchResults[0]);
 				postMessage({
 					messageEvent: Object.assign(event, {
-						// text: responseText
-						text: JSON.stringify(searchResults)
+						text: responseText
+						// text: JSON.stringify(searchResults)
 					}),
 					token: botToken
 				});
