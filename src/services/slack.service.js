@@ -46,9 +46,8 @@ module.exports = (function() {
 	}
 
 	function _onMessage(event, body) {
-		// console.log(body);
 		let client;
-		if (!event.type === 'message') {
+		if (!event.type === 'message' || !event.text) {
 			return;
 		}
 		clients.getClientByTeamId(body.team_id).then(clientData => {
@@ -67,7 +66,6 @@ module.exports = (function() {
 			if (searchResults.length === 1) {
 				return messageUtils.singleFeature(searchResults[0]);
 			} else if (searchResults.length <= 5) {
-				debug(searchResults)
 				return messageUtils.multiFeature(searchResults);
 			} else {
 				debug('too many search results')

@@ -5,6 +5,7 @@ const dbService = require('../services/database.service.js');
 const dbUtils = require('../lib/database.utils.js');
 
 module.exports = (function() {
+	// TODO: Probably a good idea to cache this stuff
 
 	return {
 		makeFeatures,
@@ -103,6 +104,7 @@ module.exports = (function() {
 				if (err) {
 					reject(err);
 				}
+				debug(doc);
 				resolve(dbUtils.decodeDots(doc));
 			});
 		});

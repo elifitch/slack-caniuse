@@ -86,7 +86,6 @@ module.exports = (function() {
 	}
 
 	function multiFeature(features) {
-		debug(features)
 		return {
 			text: 'Your search returned a few results. Which one did you mean?',
 			attachments: features.map(feature => {
