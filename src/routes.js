@@ -16,7 +16,9 @@
 	const redirectUri = process.env.SLACK_REDIRECT_URI;
 	const verifier = process.env.SLACK_VERIFICATION_TOKEN;
 
-	const messageService = require('./services/message.service');
+	const messageUtils = require('./lib/message.utils');
+
+	//TODO: prune unused routes
 
 	router.get('/', (req, res) => {
 		res.render(`${__dirname}/views/index.html`, {
@@ -91,10 +93,10 @@
 			features.findFeature(req.body.text).then(features => {
 				if (features.length && features.length === 1) {
 					// 1 feature returned
-					res.send(messageService.mutliFeature(features));
+					res.send(messageUtils.mutliFeature(features));
 				} else if (features.length && features.length > 1) {
 					// more than 1 feature returned
-					res.send(messageService.mutliFeature(features));
+					res.send(messageUtils.mutliFeature(features));
 				} else {
 					// No features returned
 				}
@@ -107,7 +109,7 @@
 		}
 	});
 
-	router.post('/interactive-message', (req, res) => {
+	router.post('/slack/interactive-message/', (req, res) => {
 		let parsedPayload;
 		safeParse(req.body.payload, (err, json) => {
 			if (err) {
@@ -116,10 +118,9 @@
 			}
 			parsedPayload = json;
 		});
-
 		if (verifier === parsedPayload.token) {
 			features.getFeatureById(parsedPayload.actions[0].value).then(feature => {
-				res.send(messageService.singleFeature(feature))
+				res.send(messageUtils.singleFeature(feature));
 			});
 		} else {
 			res.status(400).send('Request token did not match slack verification token.');

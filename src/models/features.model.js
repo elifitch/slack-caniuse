@@ -1,10 +1,11 @@
 'use strict';
+const debug = require('debug')('app:features-model');
+const Promise = require('bluebird');
+const dbService = require('../services/database.service.js');
+const dbUtils = require('../lib/database.utils.js');
 
 module.exports = (function() {
-	const debug = require('debug')('app:features-model');
-	const Promise = require('bluebird');
-	const dbService = require('../services/database.service.js');
-	const dbUtils = require('../lib/database.utils.js');
+	// TODO: Probably a good idea to cache this stuff
 
 	return {
 		makeFeatures,
@@ -53,23 +54,22 @@ module.exports = (function() {
 		})
 	}
 
-	function findFeature(featureName) {
+	function findFeature(query) {
 		const db = dbService.getDb();
 		const features = db.collection('features');
 
 		return new Promise((resolve, reject) => {
 			// $regex: .*someString*. = contains someString
 			features.find({$or:[
-					{'data.title': new RegExp(`.*${featureName}.*`, 'gi')},
+					{'data.title': new RegExp(`.*${query}.*`, 'gi')},
+					{'name': new RegExp(`.*${query}.*`, 'gi')},
 					// For now, not searching description, too loose.
-					{'data.description': new RegExp(`.*${featureName}.*`, 'gi')},
-					{'data.keywords': new RegExp(`.*${featureName}.*`, 'gi')}
+					// {'data.description': new RegExp(`.*${query}.*`, 'gi')},
+					{'data.keywords': new RegExp(`.*${query}.*`, 'gi')}
 				]}).toArray((err, docs) => {
-					if (docs && docs.length <= 3) {
+					if (docs) {
 						const decoded = docs.map(doc => dbUtils.decodeDots(doc));
 						resolve(decoded);
-					} else if (docs && docs.length > 3) {
-						reject('Oops! Your query matched too many results. Can you be more specific?');
 					} else {
 						reject(err);
 					}
@@ -104,6 +104,7 @@ module.exports = (function() {
 				if (err) {
 					reject(err);
 				}
+				debug(doc);
 				resolve(dbUtils.decodeDots(doc));
 			});
 		});

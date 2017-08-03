@@ -4,17 +4,21 @@ const request = require('request-promise');
 const createSlackEventAdapter = require('@slack/events-api').createSlackEventAdapter;
 const features = require('../models/features.model.js');
 const clients = require('../models/clients.model.js');
-
-const PHRASES_TO_IGNORE = [
-	'caniuse',
-	'can i use',
-	'can_i_use',
-	'can-i-use'
-];
-const BOT_NOT_MENTIONED_ERR = 'Bot not mentioned';
+const messageUtils = require('../lib/message.utils');
 
 module.exports = (function() {
+	const PHRASES_TO_IGNORE = [
+		'caniuse',
+		'can i use',
+		'can_i_use',
+		'can-i-use'
+	];
+	const BOT_NOT_MENTIONED_ERR = 'Bot not mentioned';
+	const SEARCH_RESULT_LIMIT = 5;
+
+	// slackEvents singleton
 	let slackEvents = null;
+
 	return {
 		init,
 		slackEventAdapter,
@@ -31,6 +35,7 @@ module.exports = (function() {
 	}
 
 	function slackEventAdapter(slackVerificationToken) {
+		// Singleton
 		if (slackEvents) {
 			return slackEvents;
 		}
@@ -41,29 +46,38 @@ module.exports = (function() {
 	}
 
 	function _onMessage(event, body) {
-		console.log(body);
-		if (!event.type === 'message') {
+		let client;
+		if (!event.type === 'message' || !event.text) {
 			return;
 		}
-		clients.getClientByTeamId(body.team_id).then(client => {
-			if (!_mentionsSlackbot(event.text, client.bot.bot_user_id)) {
+		clients.getClientByTeamId(body.team_id).then(clientData => {
+			if (!_mentionsSlackbot(event.text, clientData.bot.bot_user_id)) {
 				// TODO: feel like this early exit could be more elegant?
 				throw(BOT_NOT_MENTIONED_ERR);
 			}
+			client = clientData;
 			return client;
 		})
 		.then(client => {
 			const searchTerms = _createFeatureQuery(event.text, client.bot.bot_user_id);
-			return Promise.all([
-				features.findFeature(searchTerms),
-				clients.getBotAuthByTeamId(body.team_id)
-			]);
+			return features.findFeature(searchTerms);
 		})
-		.then(([searchResults, botToken]) => {
-			console.log(searchResults);
+		.then(searchResults => {
+			if (searchResults.length === 1) {
+				return messageUtils.singleFeature(searchResults[0]);
+			} else if (searchResults.length <= 5) {
+				return messageUtils.multiFeature(searchResults);
+			} else {
+				debug('too many search results')
+			}
+		})
+		.then(responseText => {
 			postMessage({
-				messageEvent: Object.assign(event, {text:JSON.stringify(searchResults)}),
-				token: botToken
+				messageEvent: Object.assign(event, {
+					attachments: JSON.stringify(responseText.attachments),
+					text: responseText.text
+				}),
+				token: client.bot.bot_access_token
 			});
 		})
 		.catch(err => {
@@ -71,7 +85,7 @@ module.exports = (function() {
 				debug('error in processing slack message: ', err);
 			}
 		})
-		console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
+		// console.log(`Received a message event: user ${event.user} in channel ${event.channel} says ${event.text}`);
 	}
 
 	function postMessage({messageEvent, token}) {
@@ -82,12 +96,14 @@ module.exports = (function() {
 		// ts: '1501536858.189745',
 		// channel: 'C1D4ADC9Z',
 		// event_ts: '1501536858.189745' }
+
 		return request
 			.post('https://slack.com/api/chat.postMessage')
 			.form({
 				token,
 				channel: messageEvent.channel,
-				text: messageEvent.text
+				text: messageEvent.text,
+				attachments: messageEvent.attachments
 			});
 	}
 
@@ -117,4 +133,5 @@ module.exports = (function() {
 
 		return messageText.trim();
 	}
+
 })()

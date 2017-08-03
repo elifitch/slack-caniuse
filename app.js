@@ -31,8 +31,8 @@
 		express: app
 	});
 
-	// app.use( bodyParser.urlencoded({ extended: false }));
 	app.use( bodyParser.json());
+	app.use( bodyParser.urlencoded({ extended: false }));
 	// Mount slack event handler on a route
 	app.use('/slack/events', slackEvents.expressMiddleware());
 	app.use('/', routes);
@@ -65,7 +65,7 @@
 				browsers.getCurrentAndLastBrowsers()
 				.then(features.getUpdatedFeatures)
 				.then(updates => {
-					console.log(updates);
+					// console.log(updates);
 				});
 			});
 		});
