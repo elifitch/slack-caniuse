@@ -35,15 +35,19 @@ Need to expose the local port with Ngrok, and edit the URLs in the slack app das
 - [ ] Tests
 
 ## Passive Reminder Outline
-- [ ] Build list of browsers that has an order, so you can identify what the current, and nearly current versions are
-- [ ] When you get new feature data in, take their support data and look at the most recent browser, compare it against the one just before that. If they're different, send a message.
-- [ ]
+* Get new browser data
+* Get new feature data
+* Get what the new current and last browser versions are
+* Get a list of features that NOW have diff status for current and last
+* Crosscheck that list of features against past updates and filter out the ones that are actually new -> real updates
+* Hang onto those updates and add them to the list of past updates
 
 ## Future features that would be ✨neato✨
 * Programattically draw (node canvas?) a caniuse.com-esque browser support grid, to be sent along as an image
 * More configurability. What browsers do you want to show up? What versions do you care about? What's your simple yes/no threshold?
 * More flexible search. Try "multiple background images".
 * Make a flexible utility wrapper function for caching so it's not so ad-hoc.
+* Add some database validation
 
 ## Questions
 * Error messages? "I'm sorry I didn't understand your request. Could you be more specific? Something like @caniuse-bot can i use css grid. Or maybe something like @caniuse-bot css grid."

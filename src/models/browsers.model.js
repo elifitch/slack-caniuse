@@ -95,7 +95,7 @@ module.exports = (function() {
 		const browsers = db.collection('browsers');
 
 		return new Promise((resolve, reject) => {
-			browsers.find({}).toArray((err, docs) => {
+			return browsers.find({}).toArray((err, docs) => {
 				if (err) {
 					reject(err);
 				} else {

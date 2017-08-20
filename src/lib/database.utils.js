@@ -3,7 +3,8 @@
 module.exports = (function() {
 	return {
 		encodeDots,
-		decodeDots
+		decodeDots,
+		objectify
 	}
 
 	function encodeDots(obj) {
@@ -28,5 +29,12 @@ module.exports = (function() {
 			}
 		}
 		return output;
+	}
+
+	function objectify(array, key) {
+		return array.reduce((object, item) => {
+			object[key] = item;
+			return object;
+		}, {});
 	}
 })()

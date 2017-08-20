@@ -3,9 +3,12 @@ const debug = require('debug')('app:features-model');
 const Promise = require('bluebird');
 const dbService = require('../services/database.service.js');
 const dbUtils = require('../lib/database.utils.js');
+const featureUtils = require('../lib/feature.utils.js');
 
 module.exports = (function() {
 	// TODO: Probably a good idea to cache this stuff
+	// TODO: return data format should always be consistent;
+	// probably easiest if its always and object with keys of the features name?
 
 	return {
 		makeFeatures,
@@ -13,7 +16,7 @@ module.exports = (function() {
 		findFeature,
 		getFeatureByName,
 		getFeatureById,
-		getUpdatedFeatures
+		getRawUpdatedFeatures
 	}
 
 	/* public api */
@@ -110,35 +113,43 @@ module.exports = (function() {
 		});
 	}
 
-	function getUpdatedFeatures(browserData) {
+	function getRawUpdatedFeatures(browserData) {
 		return listFeatures().then(features => {
 			const browserNames = Object.keys(browserData);
-			const updatedFeatures = features.reduce((updates, feature) => {
+			return features.reduce((updates, feature) => {
 				let returnData = {
-					feature: feature.name,
-					data: []
+					name: feature.name,
+					data: {}
 				};
 				browserNames.forEach(browserName => {
 					const {currentVersion, lastVersion} = browserData[browserName];
-					if ((currentVersion && lastVersion)) {
-						const featureCurrent = feature.data.stats[browserName][currentVersion];
-						const featureLast = feature.data.stats[browserName][lastVersion];
-						if (featureCurrent !== featureLast) {
-							returnData.data.push({
-								browser: browserName,
-								currentVersion: featureCurrent,
-								lastVersion: featureLast
+					if (currentVersion && lastVersion) {
+						const currentSupport = feature.data.stats[browserName][currentVersion];
+						const lastSupport = feature.data.stats[browserName][lastVersion];
+						if (currentSupport !== lastSupport) {
+							// Making this crazy key as a way to cheat and do shallow comparisons
+							const key = featureUtils.browserSupportKey({
+								browserName,
+								currentVersion,
+								currentSupport,
+								lastVersion,
+								lastSupport
 							});
+							returnData.data[key] = {
+								browser: browserName,
+								currentVersion: currentVersion,
+								currentSupport: currentSupport,
+								lastVersion: lastVersion,
+								lastSupport: lastSupport
+							};
 						}
 					}
 				});
-				if (returnData.data.length > 1) {
-					updates.push(returnData);
+				if (Object.keys(returnData.data).length > 1) {
+					updates[feature.name] = returnData;
 				}
 				return updates;
-			}, []);
-
-			return updatedFeatures;
+			}, {});
 		});
 	}
 

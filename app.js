@@ -16,6 +16,8 @@
 	const watcher = require('./src/services/watcher.service.js');
 	const getFile = require('./src/lib/request.utils.js').getFile;
 	const dbUtils = require('./src/lib/database.utils.js');
+	const featureUtils = require('./src/lib/feature.utils.js');
+	const updates = require('./src/models/updates.model');
 
 	const caniuseUrl = require('./src/config.js').caniuseUrl;
 	const dbUrl = `${process.env.DB_HOST}${process.env.DB_NAME}`;
@@ -56,8 +58,31 @@
 			return Promise.all([
 				browsers.makeBrowsers(cleanData),
 				features.makeFeatures(cleanData.data)
-			])
-		}).then(() => {
+			]);
+		})
+		.then(() => {
+			//////////////////////////////////
+			// TODO: This should be in watcher once it's good to go
+			// Just easier to test it here
+			// On startup will need to make baseline updates from raw updates
+			let currAndLastBrowsers;
+			browsers.getCurrentAndLastBrowsers()
+			.then(cLBrowsers => {
+				currAndLastBrowsers = cLBrowsers;
+				return Promise.all([
+					features.getRawUpdatedFeatures(currAndLastBrowsers),
+					updates.getUpdates()
+				]);
+			})
+			.then(([rawUpdatedFeatures, updatesData]) => {
+				debug(rawUpdatedFeatures.fetch);
+				debug(updatesData);
+				// return featureUtils.filterRawUpdates(rawUpdatedFeatures, updates);
+			})
+			.then(data => {
+				debug(data);
+			});
+			//////////////////////////////////
 			watcher.watchCaniuse(githubToken);
 			app.listen(port, () => {
 				console.log('listening on port ' + port);
