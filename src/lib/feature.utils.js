@@ -8,17 +8,40 @@ module.exports = (function() {
 	}
 
 	function filterRawUpdates(rawUpdatedFeatures, updates) {
+		/*
+			return array of objects with schema:
+			{
+				name: featureName,
+				data: {
+					freshBrowserSupportKey: freshBrowserSupportData
+				}
+			}
+		*/
 		return new Promise((resolve, reject) => {
-			Object.keys(rawUpdatedFeatures).reduce((filteredUpdates, featureName) => {
+			const filteredUpdates = Object.keys(rawUpdatedFeatures).reduce((filteredUpdates, featureName) => {
+				const rawUpdatedFeature = rawUpdatedFeatures[featureName];
 				if (!updates[featureName]) {
-					// if theres no existing entries in updates for this feature
-					// then it's definitely an update
-					filteredUpdates.push(rawUpdatedFeatures[featureName]);
+					// if theres no existing entries in updates for this whole *feature*
+					// then it's DEFinitely a new update and we can avoid some checks
+					filteredUpdates.push(rawUpdatedFeature);
 					return filteredUpdates;
 				}
-				// feature.data
+
+				const newUpdatesInFeature = Object.keys(rawUpdatedFeature.data).reduce((newUpdates, browserSupportKey) => {
+					if (!updates[featureName].data[browserSupportKey]) {
+						// If a matching key is not present, then this update has not yet been logged
+						newUpdates[browserSupportKey] = rawUpdatedFeature.data[browserSupportKey];
+						return newUpdates;
+					}
+				}, {});
+				filteredUpdates.push({
+					name: featureName,
+					data: newUpdatesInFeature
+				});
+				return filteredUpdates;
 			}, []);
-			// resolve(filteredUpdates);
+
+			resolve(filteredUpdates);
 		});
 	}
 

@@ -114,9 +114,14 @@ module.exports = (function() {
 	}
 
 	function getRawUpdatedFeatures(browserData) {
+		// TODO: This should accept two arguments, browser data and list features
+		// that way it won't have any intermediate queries. This is more efficient,
+		// because you can have several queries that depend on listFeatures(),
+		// but only make that query one time.  This can and should probably live in
+		// feature utilities, because it wouldn't actually query the database, it just filters data
 		return listFeatures().then(features => {
 			const browserNames = Object.keys(browserData);
-			return features.reduce((updates, feature) => {
+			return features.reduce((rawUpdates, feature) => {
 				let returnData = {
 					name: feature.name,
 					data: {}
@@ -146,9 +151,9 @@ module.exports = (function() {
 					}
 				});
 				if (Object.keys(returnData.data).length > 1) {
-					updates[feature.name] = returnData;
+					rawUpdates[feature.name] = returnData;
 				}
-				return updates;
+				return rawUpdates;
 			}, {});
 		});
 	}

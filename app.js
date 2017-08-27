@@ -65,6 +65,7 @@
 			// TODO: This should be in watcher once it's good to go
 			// Just easier to test it here
 			// On startup will need to make baseline updates from raw updates
+			//////////////////////////////////
 			let currAndLastBrowsers;
 			browsers.getCurrentAndLastBrowsers()
 			.then(cLBrowsers => {
@@ -74,13 +75,12 @@
 					updates.getUpdates()
 				]);
 			})
-			.then(([rawUpdatedFeatures, updatesData]) => {
-				debug(rawUpdatedFeatures.fetch);
-				debug(updatesData);
-				// return featureUtils.filterRawUpdates(rawUpdatedFeatures, updates);
+			.then(([rawUpdatedFeatures, existingUpdatesData]) => {
+				return featureUtils.filterRawUpdates(rawUpdatedFeatures, existingUpdatesData);
 			})
-			.then(data => {
-				debug(data);
+			.then(freshUpdates => {
+
+				debug(freshUpdates);
 			});
 			//////////////////////////////////
 			watcher.watchCaniuse(githubToken);
